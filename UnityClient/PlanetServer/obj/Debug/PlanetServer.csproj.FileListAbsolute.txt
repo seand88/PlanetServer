@@ -1,0 +1,17 @@
+C:\Users\Mike\Desktop\New folder (2)\ClassLibrary1\ClassLibrary1\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Mike\Desktop\New folder (2)\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.dll
+C:\Users\Mike\Desktop\New folder (2)\ClassLibrary1\ClassLibrary1\bin\Debug\ClassLibrary1.dll
+C:\Users\Mike\Desktop\New folder (2)\ClassLibrary1\ClassLibrary1\bin\Debug\ClassLibrary1.pdb
+C:\Users\Mike\Desktop\New folder (2)\ClassLibrary1\ClassLibrary1\bin\Debug\LinqBridge.dll
+C:\Users\Mike\Desktop\New folder (2)\ClassLibrary1\ClassLibrary1\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Mike\Desktop\New folder (2)\ClassLibrary1\ClassLibrary1\bin\Debug\UnityEngine.dll
+C:\Users\Mike\Desktop\New folder (2)\ClassLibrary1\ClassLibrary1\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Mike\Desktop\New folder (2)\ClassLibrary1\ClassLibrary1\obj\Debug\ClassLibrary1.pdb
+C:\Users\Mike\Desktop\New folder (2)\PlanetServer\PlanetServer\bin\Debug\PlanetServer.dll
+C:\Users\Mike\Desktop\New folder (2)\PlanetServer\PlanetServer\bin\Debug\PlanetServer.pdb
+C:\Users\Mike\Desktop\New folder (2)\PlanetServer\PlanetServer\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Mike\Desktop\New folder (2)\PlanetServer\PlanetServer\bin\Debug\UnityEngine.dll
+C:\Users\Mike\Desktop\New folder (2)\PlanetServer\PlanetServer\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Mike\Desktop\New folder (2)\PlanetServer\PlanetServer\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Mike\Desktop\New folder (2)\PlanetServer\PlanetServer\obj\Debug\PlanetServer.dll
+C:\Users\Mike\Desktop\New folder (2)\PlanetServer\PlanetServer\obj\Debug\PlanetServer.pdb

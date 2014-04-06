@@ -1,0 +1,9 @@
+C:\Projects\magnate1\planetserver\UnityClient\PsTest\bin\Release\PsTest.exe
+C:\Projects\magnate1\planetserver\UnityClient\PsTest\bin\Release\PsTest.pdb
+C:\Projects\magnate1\planetserver\UnityClient\PsTest\bin\Release\Newtonsoft.Json.dll
+C:\Projects\magnate1\planetserver\UnityClient\PsTest\bin\Release\PlanetServer.dll
+C:\Projects\magnate1\planetserver\UnityClient\PsTest\bin\Release\PlanetServer.pdb
+C:\Projects\magnate1\planetserver\UnityClient\PsTest\bin\Release\Newtonsoft.Json.xml
+C:\Projects\magnate1\planetserver\UnityClient\PsTest\obj\Release\ResolveAssemblyReference.cache
+C:\Projects\magnate1\planetserver\UnityClient\PsTest\obj\Release\PsTest.exe
+C:\Projects\magnate1\planetserver\UnityClient\PsTest\obj\Release\PsTest.pdb

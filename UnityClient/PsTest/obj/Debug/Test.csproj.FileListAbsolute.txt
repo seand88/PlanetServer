@@ -1,0 +1,9 @@
+C:\Users\Mike\Desktop\New folder (2)\PlanetServer\ConsoleApplication1\bin\Debug\ConsoleApplication1.exe
+C:\Users\Mike\Desktop\New folder (2)\PlanetServer\ConsoleApplication1\bin\Debug\ConsoleApplication1.pdb
+C:\Users\Mike\Desktop\New folder (2)\PlanetServer\ConsoleApplication1\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Mike\Desktop\New folder (2)\PlanetServer\ConsoleApplication1\bin\Debug\PlanetServer.dll
+C:\Users\Mike\Desktop\New folder (2)\PlanetServer\ConsoleApplication1\bin\Debug\PlanetServer.pdb
+C:\Users\Mike\Desktop\New folder (2)\PlanetServer\ConsoleApplication1\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Mike\Desktop\New folder (2)\PlanetServer\ConsoleApplication1\obj\Debug\ResolveAssemblyReference.cache
+C:\Users\Mike\Desktop\New folder (2)\PlanetServer\ConsoleApplication1\obj\Debug\ConsoleApplication1.exe
+C:\Users\Mike\Desktop\New folder (2)\PlanetServer\ConsoleApplication1\obj\Debug\ConsoleApplication1.pdb

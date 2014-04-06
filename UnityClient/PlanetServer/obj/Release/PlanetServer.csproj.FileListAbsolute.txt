@@ -1,0 +1,8 @@
+C:\Projects\magnate1\planetserver\UnityClient\PlanetServer\bin\Release\PlanetServer.dll
+C:\Projects\magnate1\planetserver\UnityClient\PlanetServer\bin\Release\PlanetServer.pdb
+C:\Projects\magnate1\planetserver\UnityClient\PlanetServer\bin\Release\Newtonsoft.Json.dll
+C:\Projects\magnate1\planetserver\UnityClient\PlanetServer\bin\Release\UnityEngine.dll
+C:\Projects\magnate1\planetserver\UnityClient\PlanetServer\bin\Release\Newtonsoft.Json.xml
+C:\Projects\magnate1\planetserver\UnityClient\PlanetServer\obj\Release\ResolveAssemblyReference.cache
+C:\Projects\magnate1\planetserver\UnityClient\PlanetServer\obj\Release\PlanetServer.dll
+C:\Projects\magnate1\planetserver\UnityClient\PlanetServer\obj\Release\PlanetServer.pdb
