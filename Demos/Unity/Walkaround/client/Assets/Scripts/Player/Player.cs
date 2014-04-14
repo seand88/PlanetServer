@@ -20,6 +20,7 @@ public class Player : MonoBehaviour
 	public float FramesPerSecond;
 
 	public float Speed;
+	public float ShotDelay;
 
 	public PlayerStatus Status { get; private set; }
 	public PlayerDirection Direction { get; private set; }
@@ -28,13 +29,16 @@ public class Player : MonoBehaviour
 	private SpriteRenderer _renderer;
 
 	private Vector3 _target;
-	private float _time;
+
+	private bool _canShoot;
 
 	void Start()
 	{
 		_renderer = renderer as SpriteRenderer;
 
 		Position = transform.position;
+
+		_canShoot = true;
 	}
 	
 	void Update()
@@ -71,9 +75,7 @@ public class Player : MonoBehaviour
 			if (transform.position == _target)
 			{
 				if (!Input.anyKey)
-				{
-					Face (Direction);
-				}
+					Face(Direction);
 
 				Status = PlayerStatus.Standing;
 				Position = transform.position;
@@ -105,12 +107,11 @@ public class Player : MonoBehaviour
     
     public void MoveTo(PlayerDirection direction)
     {
-        if (Status == PlayerStatus.Walking || Status == PlayerStatus.Attacking)
+        if (Status == PlayerStatus.Walking)
             return;
         
         Direction = direction;
 		Status = PlayerStatus.Walking;
-		_time = Time.time + 1.0f;
 
 		switch (direction)
 		{
@@ -131,4 +132,42 @@ public class Player : MonoBehaviour
                 break;
         }
 	}
+
+	public Vector2 GetDirectionVector()
+	{
+		switch (Direction)
+		{
+			case PlayerDirection.Down:
+				return DIR_DOWN;
+					
+			case PlayerDirection.Left:
+				return DIR_LEFT;
+				
+			case PlayerDirection.Right:
+				return DIR_RIGHT;
+				
+			case PlayerDirection.Up:
+				return DIR_UP;
+
+			default:
+				return Vector2.zero;
+		}
+	}
+
+	public void Shoot()
+	{
+		if (_canShoot)
+		{
+			Shot.Create(this, GetDirectionVector());
+			StartCoroutine(ShotTimer());
+			_canShoot = false;
+		}
+	}
+
+	private IEnumerator ShotTimer()
+	{
+		yield return new WaitForSeconds(ShotDelay);
+		
+		_canShoot = true;
+    }
 }

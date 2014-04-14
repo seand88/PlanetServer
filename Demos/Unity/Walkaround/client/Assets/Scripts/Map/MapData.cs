@@ -11,6 +11,7 @@ public class MapData
 
 	private List<string> _resources;
 	private List<int> _tiles;
+	private List<bool> _walkable;
 
 	public void LoadMap(string filename)
 	{
@@ -38,6 +39,13 @@ public class MapData
 			string[] str = tiles.InnerText.Split(',');
 			foreach (string s in str) 
 				_tiles.Add(Int32.Parse(s));
+
+			_walkable = new List<bool>();
+
+			XmlNode walkable = node.SelectSingleNode("walkable");
+			str = walkable.InnerText.Split(',');
+			foreach (string s in str) 
+				_walkable.Add(Int32.Parse(s) == 0);
 		}
 	}
 
@@ -53,7 +61,7 @@ public class MapData
 
 	public bool CanMove(Vector2 target)
 	{
-		if (target.x >= 0 && target.x < Width && target.y <= 0 && target.y > -Height)
+		if (target.x >= 0 && target.x < Width && target.y <= 0 && target.y > -Height && _walkable[(int)target.x + Width * (int)-target.y])
 			return true;
 
 		return false;
