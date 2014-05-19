@@ -66,7 +66,7 @@ namespace PlanetServer.Core
 
                 client.EndConnect(ar);
 
-                Console.WriteLine("Socket connected to {0}", client.RemoteEndPoint.ToString());
+                Console.WriteLine("Socket connected to " + client.RemoteEndPoint.ToString());
 
                 StateObject state = new StateObject();
                 state.workSocket = _socket;

@@ -1,6 +1,4 @@
-﻿using Newtonsoft.Json;
-
-namespace PlanetServer.Data
+﻿namespace PlanetServer.Data
 {
     public class PsDataWrapper
     {

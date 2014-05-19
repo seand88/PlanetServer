@@ -3,9 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Reflection;
 
-using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
+using Pathfinding.Serialization.JsonFx;
 
 namespace PlanetServer.Data
 {
@@ -15,57 +15,62 @@ namespace PlanetServer.Data
 
         public static PsObject Create(string json)
         {
-            JObject o = JObject.Parse(json);
+            object obj = JsonReader.Deserialize(json);
 
-            return Create(o);
+            if (obj is IDictionary)
+            {
+                return Create((Dictionary<string, object>)obj);
+            }
+            else
+            {
+                throw new Exception("JSON not in proper format");
+            }
         }
 
-        public static PsObject Create(JObject jobj)
+        public static PsObject Create(Dictionary<string, object> dict)
         {
             PsObject psobj = new PsObject();
 
-            foreach (JProperty property in jobj.Properties())
+            foreach (KeyValuePair<string, object> item in dict)
             {
-                string key = property.Name;
+                string key = item.Key;
+                Dictionary<string, object> value = (Dictionary<string, object>)item.Value;
 
-                foreach (JToken t in property.Children())
+                int type = (int)value["t"];
+
+                switch (type)
                 {
-                    int type = Int32.Parse(t.Value<string>("t"));
+                    case (int)Constants.PsType.Boolean:
+                        psobj.SetBoolean(key, Convert.ToBoolean(value["v"]));
+                        break;
 
-                    switch (type)
-                    {
-                        case (int)Constants.PsType.Boolean:
-                            psobj.SetBoolean(key, t.Value<bool>("v"));
-                            break;
+                    case (int)Constants.PsType.String:
+                        psobj.SetString(key, Convert.ToString(value["v"]));
+                        break;
 
-                        case (int)Constants.PsType.String:
-                            psobj.SetString(key, t.Value<string>("v"));
-                            break;
+                    case (int)Constants.PsType.Integer:
+                        psobj.SetInt(key, Convert.ToInt32(value["v"]));
+                        break;
 
-                        case (int)Constants.PsType.Integer:
-                            psobj.SetInt(key, t.Value<int>("v"));
-                            break;
+                    case (int)Constants.PsType.Long:
+                        psobj.SetLong(key, Convert.ToInt64(value["v"]));
+                        break;
 
-                        case (int)Constants.PsType.Long:
-                            psobj.SetLong(key, t.Value<long>("v"));
-                            break;
+                    case (int)Constants.PsType.Float:
+                        psobj.SetFloat(key, Convert.ToSingle(value["v"]));
+                        break;
 
-                        case (int)Constants.PsType.Float:
-                            psobj.SetFloat(key, t.Value<float>("v"));
-                            break;
+                    case (int)Constants.PsType.PSObject:
+                        psobj.SetPsObject(key, PsObject.Create((Dictionary<string, object>)value["v"]));
+                        break;
 
-                        case (int)Constants.PsType.PSObject:
-                            psobj.SetPsObject(key, PsObject.Create(t.Value<JObject>("v")));
-                            break;
+                    case (int)Constants.PsType.PSArray:
+                        psobj.SetPsArray(key, PsArray.Create((object[])value["v"]));
+                        break;
 
-                        case (int)Constants.PsType.PSArray:
-                            psobj.SetPsArray(key, PsArray.Create(t.Value<JArray>("v")));
-                            break;
-
-                        case (int)Constants.PsType.Number:
-                            psobj.SetNumber(key, t.Value<float>("v"));
-                            break;
-                    }
+                    case (int)Constants.PsType.Number:
+                        psobj.SetFloat(key, Convert.ToSingle(value["v"]));
+                        break;
                 }
             }
 
@@ -182,7 +187,7 @@ namespace PlanetServer.Data
                 if (data.v is PsObject)
                 {
                     Hashtable hash = new Hashtable(2);
-                    hash.Add(Constants.TYPE_FLAG, Constants.PsType.PSObject);
+                    hash.Add(Constants.TYPE_FLAG, (int)Constants.PsType.PSObject);
                     hash.Add(Constants.VALUE_FLAG, (data.v as PsObject).ToObject());
 
                     ret[key] = hash;
@@ -190,7 +195,7 @@ namespace PlanetServer.Data
                 else if (data.v is PsArray)
                 {
                     Hashtable hash = new Hashtable(2);
-                    hash.Add(Constants.TYPE_FLAG, Constants.PsType.PSArray);
+                    hash.Add(Constants.TYPE_FLAG, (int)Constants.PsType.PSArray);
                     hash.Add(Constants.VALUE_FLAG, (data.v as PsArray).ToArrayObject());
 
                     ret[key] = hash;

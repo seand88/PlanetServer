@@ -1,56 +1,54 @@
 ﻿using System;
 using System.Collections.Generic;
 
-using Newtonsoft.Json.Linq;
-
 namespace PlanetServer.Data
 {
     public class PsArray
     {
-       // public object Data { get { return _content; } }
-
         public List<PsDataWrapper> _content;
 
-        public static PsArray Create(JArray array)
+        public static PsArray Create(object[] obj)
         {
             PsArray psa = new PsArray();
 
-            foreach (JToken t in array.Children())
+            foreach (object o in obj)
             {
-                int type = Int32.Parse(t.Value<string>("t"));
+                Dictionary<string, object> dict = (Dictionary<string, object>)o;
+
+                int type = (int)dict["t"];
 
                 switch (type)
                 {
                     case (int)Constants.PsType.Boolean:
-                        psa.AddBoolean(t.Value<bool>("v"));
+                        psa.AddBoolean(Convert.ToBoolean(dict["v"]));
                         break;
 
                     case (int)Constants.PsType.String:
-                        psa.AddString(t.Value<string>("v"));
+                        psa.AddString(Convert.ToString(dict["v"]));
                         break;
 
                     case (int)Constants.PsType.Integer:
-                        psa.AddInt(t.Value<int>("v"));
+                        psa.AddInt(Convert.ToInt32(dict["v"]));
                         break;
 
                     case (int)Constants.PsType.Long:
-                        psa.AddLong(t.Value<long>("v"));
+                        psa.AddLong(Convert.ToInt64(dict["v"]));
                         break;
 
                     case (int)Constants.PsType.Float:
-                        psa.AddFloat(t.Value<float>("v"));
+                        psa.AddFloat(Convert.ToSingle(dict["v"]));
                         break;
 
                     case (int)Constants.PsType.PSObject:
-                        psa.AddPsObject(PsObject.Create(t.Value<string>("v")));
+                        psa.AddPsObject(PsObject.Create((Dictionary<string, object>)dict["v"]));
                         break;
 
                     case (int)Constants.PsType.PSArray:
-                        psa.AddPsArray(PsArray.Create(t.Value<JArray>("v")));
+                        psa.AddPsArray(PsArray.Create((object[])dict["v"]));
                         break;
 
                     case (int)Constants.PsType.Number:
-                        psa.AddNumber(t.Value<float>("v"));
+                        psa.AddNumber(Convert.ToSingle(dict["v"]));
                         break;
                 }
             }

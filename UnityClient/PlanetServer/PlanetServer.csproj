@@ -31,23 +31,39 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=2.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>lib\Newtonsoft.Json.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
-    <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\Program Files (x86)\Unity\Editor\Data\Managed\UnityEngine.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Src\Core\EventDispatcher.cs" />
     <Compile Include="Src\Core\PsEvent.cs" />
     <Compile Include="Src\Core\EventListenerDelegate.cs" />
     <Compile Include="Src\Data\PsArray.cs" />
+    <Compile Include="Src\JsonFx.Json\About.cs" />
+    <Compile Include="Src\JsonFx.Json\DataReaderProvider.cs" />
+    <Compile Include="Src\JsonFx.Json\DataWriterProvider.cs" />
+    <Compile Include="Src\JsonFx.Json\EcmaScriptIdentifier.cs" />
+    <Compile Include="Src\JsonFx.Json\EcmaScriptWriter.cs" />
+    <Compile Include="Src\JsonFx.Json\IDataReader.cs" />
+    <Compile Include="Src\JsonFx.Json\IDataWriter.cs" />
+    <Compile Include="Src\JsonFx.Json\IJsonSerializable.cs" />
+    <Compile Include="Src\JsonFx.Json\JsonDataReader.cs" />
+    <Compile Include="Src\JsonFx.Json\JsonDataWriter.cs" />
+    <Compile Include="Src\JsonFx.Json\JsonIgnoreAttribute.cs" />
+    <Compile Include="Src\JsonFx.Json\JsonMemberAttribute.cs" />
+    <Compile Include="Src\JsonFx.Json\JsonNameAttribute.cs" />
+    <Compile Include="Src\JsonFx.Json\JsonOptInAttribute.cs" />
+    <Compile Include="Src\JsonFx.Json\JsonReader.cs" />
+    <Compile Include="Src\JsonFx.Json\JsonReaderSettings.cs" />
+    <Compile Include="Src\JsonFx.Json\JsonSerializationException.cs" />
+    <Compile Include="Src\JsonFx.Json\JsonSpecifiedPropertyAttribute.cs" />
+    <Compile Include="Src\JsonFx.Json\JsonToken.cs" />
+    <Compile Include="Src\JsonFx.Json\JsonWriter.cs" />
+    <Compile Include="Src\JsonFx.Json\JsonWriterSettings.cs" />
+    <Compile Include="Src\JsonFx.Json\TypeCoercionUtility.cs" />
+    <Compile Include="Src\JsonFx.Json\XmlDataReader.cs" />
+    <Compile Include="Src\JsonFx.Json\XmlDataWriter.cs" />
     <Compile Include="Src\Requests\ExtensionRequest.cs" />
     <Compile Include="Src\Core\Server.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -59,6 +75,14 @@
     <Compile Include="Src\Requests\RequestType.cs" />
     <Compile Include="Src\Rooms\Room.cs" />
     <Compile Include="Src\Core\StateObject.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Src\JsonFx.Json\JsonFx.pidb" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Src\JsonFx.Json\License.txt" />
+    <Content Include="Src\JsonFx.Json\Readme.txt" />
+    <Content Include="Src\JsonFx.Json\Scripts\json2.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
