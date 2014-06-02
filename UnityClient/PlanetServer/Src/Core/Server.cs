@@ -1,16 +1,20 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Text;
 
-using PlanetServer.Data;
-using PlanetServer.Requests;
+using Pathfinding.Serialization.JsonFx;
 
-namespace PlanetServer.Core
+using PS.Data;
+using PS.Events;
+using PS.Requests;
+
+namespace PS.Core
 {
-    public class Server
+    public class PlanetServer
     {
         public string Host { get; private set; }
         public int Port { get; private set; }
@@ -23,14 +27,14 @@ namespace PlanetServer.Core
 
         byte[] buffer = new byte[256];
 
-        public Server()
-        {
-            _dispatcher = new EventDispatcher(this);
-        }
+        private object _lock = new object();
+        private Queue<PsEvent> _eventQueue;
 
-        public void DoEvents()
+        public PlanetServer()
         {
-          
+            _eventQueue = new Queue<PsEvent>();
+
+            _dispatcher = new EventDispatcher();
         }
 
         public void Connect(string host, int port)
@@ -54,7 +58,8 @@ namespace PlanetServer.Core
                 Dictionary<string, object> dict = new Dictionary<string, object>();
                 dict["success"] = false;
                 dict["error"] = error;
-                _dispatcher.DispatchEvent(new PsEvent(PsEvent.CONNECTION, dict));
+
+                _eventQueue.Enqueue(MessageHelper.CreateMessage(MessageType.ConnectionEvent.Name, dict));
             }
         }
 
@@ -75,7 +80,8 @@ namespace PlanetServer.Core
 
                 Dictionary<string, object> dict = new Dictionary<string, object>();
                 dict["success"] = true;
-                _dispatcher.DispatchEvent(new PsEvent(PsEvent.CONNECTION, dict));
+
+                _eventQueue.Enqueue(MessageHelper.CreateMessage(MessageType.ConnectionEvent.Name, dict));
             }
             catch (Exception e)
             {
@@ -84,7 +90,8 @@ namespace PlanetServer.Core
                 Dictionary<string, object> dict = new Dictionary<string, object>();
                 dict["success"] = false;
                 dict["error"] = error;
-                _dispatcher.DispatchEvent(new PsEvent(PsEvent.CONNECTION, dict));
+
+                _eventQueue.Enqueue(MessageHelper.CreateMessage(MessageType.ConnectionEvent.Name, dict));
             }
         }
 
@@ -95,7 +102,7 @@ namespace PlanetServer.Core
 
         private void DisconnectCallback(IAsyncResult ar)
         {
-            _dispatcher.DispatchEvent(new PsEvent(PsEvent.CONNECTION_LOST));
+            _dispatcher.DispatchEvent(MessageHelper.CreateMessage(MessageType.ConnectionLostEvent.Name));
         }
 
         private void Receive(Socket client)
@@ -125,19 +132,20 @@ namespace PlanetServer.Core
                 if (bytesRead > 0)
                 {
                     state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesRead));
-
+                    
                     client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
                     if (state.buffer[bytesRead - 1] == 0)
                     {
-                        PsObject psobj = PsObject.Create(state.sb.ToString());
+                        object obj = JsonReader.Deserialize(state.sb.ToString());
 
-                        Dictionary<string, object> dict = new Dictionary<string, object>();
-                        dict["psobj"] = psobj;
+                        if (obj is IDictionary)
+                        {
+                            Dictionary<string, object> dict = (Dictionary<string, object>)obj;
+                            Dictionary<string, object> value = (Dictionary<string, object>)dict[PsRequest.REQUEST_TYPE];
+                            string request = Convert.ToString(value["v"]) + "_event";
 
-                        if (psobj.GetString("command") == "login")
-                            _dispatcher.DispatchEvent(new PsEvent(PsEvent.LOGIN, dict));
-                        else
-                            _dispatcher.DispatchEvent(new PsEvent(PsEvent.EXTENSION_RESPONSE, dict));                    
+                            _eventQueue.Enqueue(MessageHelper.CreateMessage(request, dict));
+                        }               
                     }
                 }
                 else
@@ -176,6 +184,39 @@ namespace PlanetServer.Core
             {
                 Console.WriteLine(e.ToString());
             }
+        }
+
+        public void DispatchEvents()
+        {
+            PsEvent[] events;
+
+            lock (_lock)
+            {
+                events = _eventQueue.ToArray();
+                _eventQueue.Clear();
+            }
+
+            for (int i = 0; i < events.Length; ++i)
+                _dispatcher.DispatchEvent(events[i]);
+
+            /*object obj = this.eventsLocker;
+            Monitor.Enter(obj);
+            BaseEvent[] array;
+            try
+            {
+                array = this.eventsQueue.ToArray();
+                this.eventsQueue.Clear();
+            }
+            finally
+            {
+                Monitor.Exit(obj);
+            }
+            BaseEvent[] array2 = array;
+            for (int i = 0; i < array2.Length; i++)
+            {
+                BaseEvent evt = array2[i];
+                this.Dispatcher.DispatchEvent(evt);
+            }*/
         }
 
         public EventDispatcher EventDispatcher { get { return _dispatcher; } }

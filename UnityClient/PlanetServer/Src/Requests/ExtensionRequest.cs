@@ -1,8 +1,8 @@
 ﻿using System;
 
-using PlanetServer.Data;
+using PS.Data;
 
-namespace PlanetServer.Requests
+namespace PS.Requests
 {
     public class ExtensionRequest : PsRequest
     {

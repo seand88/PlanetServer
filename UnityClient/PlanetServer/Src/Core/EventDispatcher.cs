@@ -1,69 +1,66 @@
 ﻿using System;
 using System.Collections;
+using System.ComponentModel;
 
-namespace PlanetServer.Core
+using PS.Events;
+
+namespace PS.Core
 {
     public class EventDispatcher
     {
-        private object _target;
+        private readonly EventHandlerList _handlers = new EventHandlerList();
 
-        private Hashtable _dispatchers;
-
-        public EventDispatcher(object target)
+        public event EventDelegate<ConnectionEvent> ConnectionEvent
         {
-            _target = target;
-
-            _dispatchers = new Hashtable();
+            add { AddEventHandler(MessageType.ConnectionEvent, value); }
+            remove { RemoveEventHandler(MessageType.ConnectionEvent, value); }
         }
 
-        public void AddListener(string type, EventListenerDelegate listener)
+        public event EventDelegate<ConnectionLostEvent> ConnectionLostEvent
         {
-            EventListenerDelegate delegates;
-
-            if (!_dispatchers.ContainsKey(type))
-                _dispatchers.Add(type, null);
-
-            delegates = (EventListenerDelegate)_dispatchers[type];
-     
-            delegates += listener;
-            
-            _dispatchers[type] = delegates;
+            add { AddEventHandler(MessageType.ConnectionLostEvent, value); }
+            remove { RemoveEventHandler(MessageType.ConnectionLostEvent, value); }
         }
 
-        public void RemoveListener(string type, EventListenerDelegate listener)
+        public event EventDelegate<LoginEvent> LoginEvent
         {
-            EventListenerDelegate delegates;
-
-            if (_dispatchers.ContainsKey(type))
-            {
-                delegates = (EventListenerDelegate)_dispatchers[type];
-
-                delegates -= listener;
-
-                _dispatchers[type] = delegates;
-            }
+            add { AddEventHandler(MessageType.LoginEvent, value); }
+            remove { RemoveEventHandler(MessageType.LoginEvent, value); }
         }
 
-        public void RemoveListeners()
+        public event EventDelegate<LogoutEvent> LogoutEvent
         {
-            _dispatchers.Clear();
+            add { AddEventHandler(MessageType.LoginEvent, value); }
+            remove { RemoveEventHandler(MessageType.LoginEvent, value); }
         }
+
+        public event EventDelegate<ExtensionEvent> ExtensionEvent
+        {
+            add { AddEventHandler(MessageType.LoginEvent, value); }
+            remove { RemoveEventHandler(MessageType.LoginEvent, value); }
+        }
+
+        public event EventDelegate<PublicMessageEvent> PublicMessageEvent
+        {
+            add { AddEventHandler(MessageType.PublicMessageEvent, value); }
+            remove { RemoveEventHandler(MessageType.PublicMessageEvent, value); }
+        }
+
+        private void AddEventHandler(MessageType type, Delegate handler)
+        {
+            _handlers.AddHandler(type.Name, handler);
+        }
+
+        private void RemoveEventHandler(MessageType type, Delegate handler)
+        {
+            _handlers.RemoveHandler(type.ToString(), handler);
+        }               
 
         public void DispatchEvent(PsEvent e)
         {
-            EventListenerDelegate delegates = (EventListenerDelegate)_dispatchers[e.Type];
-            if (delegates != null)
-            {
-                e.Target = _target;
-                try
-                {
-                    delegates(e);
-                }
-                catch (Exception ex)
-                {
-                    throw new Exception("Error dispatching event " + e.Type + ": " + ex.Message + " " + ex.StackTrace, ex);
-                }
-            }
+            Delegate handler = _handlers[e.Type.Name];
+            if (handler != null)
+                handler.DynamicInvoke(new object[] { e });
         }
     }
 }

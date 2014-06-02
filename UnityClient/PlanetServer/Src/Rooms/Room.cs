@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace PlanetServer.Rooms
+namespace PS.Rooms
 {
     public class Room
     {

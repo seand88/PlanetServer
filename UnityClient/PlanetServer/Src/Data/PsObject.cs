@@ -7,7 +7,7 @@ using System.Reflection;
 
 using Pathfinding.Serialization.JsonFx;
 
-namespace PlanetServer.Data
+namespace PS.Data
 {
     public class PsObject
     {

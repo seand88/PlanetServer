@@ -1,26 +1,11 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package planetserver.util;
 
-public enum PSEvents
+public class PSEvents
 {
-    Login("login"),
-    Logout("logout"),
-    ;
-    private final String code;
-    
-    private PSEvents(String code)
-    {
-        this.code = code;
-    }
-
-    public String getCode()
-    {
-        return code;
-    }
-    
+    public static final String NONE = "none";
+    public static final String LOGIN  = "login";
+    public static final String LOGOUT = "logout";
+    public static final String EXTENSION = "extension";
 }
 
 

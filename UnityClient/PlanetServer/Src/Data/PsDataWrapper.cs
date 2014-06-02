@@ -1,4 +1,4 @@
-﻿namespace PlanetServer.Data
+﻿namespace PS.Data
 {
     public class PsDataWrapper
     {

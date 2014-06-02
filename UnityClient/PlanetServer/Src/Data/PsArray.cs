@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace PlanetServer.Data
+namespace PS.Data
 {
     public class PsArray
     {

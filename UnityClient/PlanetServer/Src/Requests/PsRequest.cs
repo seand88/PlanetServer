@@ -5,12 +5,14 @@ using System.Text;
 
 using Pathfinding.Serialization.JsonFx;
 
-using PlanetServer.Data;
+using PS.Data;
 
-namespace PlanetServer.Requests
+namespace PS.Requests
 {
     public class PsRequest
     {
+        public static readonly string REQUEST_TYPE = "request_type";
+
         public RequestType Type { get; private set; }
 
         protected PsObject _object;
@@ -23,6 +25,7 @@ namespace PlanetServer.Requests
         protected void Init(PsObject obj)
         {
             _object = obj;
+            _object.SetInt(REQUEST_TYPE, (int)Type);
         }
 
         public byte[] GenerateMessage()
@@ -30,34 +33,6 @@ namespace PlanetServer.Requests
             string str = JsonWriter.Serialize(_object.ToObject()) + Char.MinValue;
 
             return UTF8Encoding.UTF8.GetBytes(str);
-
-            //Console.WriteLine("AAAAA " + s);
-
-            /*using (StringWriter sw = new StringWriter(new StringBuilder()))
-            {
-                using (Pathfinding.Serialization.JsonFx.JsonWriter j = new Pathfinding.Serialization.JsonFx.JsonWriter(sw))
-                {
-                    j.Write(_object.ToObject());
-                    // Console.WriteLine(j.ToString());
-                }
-            }*/
-
-            /*JsonSerializer serializer = new JsonSerializer();
-
-            using (StringWriter sw = new StringWriter(new StringBuilder()))
-            {
-
-                using (JsonWriter writer = new JsonTextWriter(sw))
-                {
-                    serializer.Serialize(writer, _object.ToObject());
-
-                    string str = sw.ToString() + Char.MinValue;
-
-                    Console.WriteLine("BBBBB " + str);
-
-                    return UTF8Encoding.UTF8.GetBytes(str);
-                }
-            }*/
         }
     }
 }

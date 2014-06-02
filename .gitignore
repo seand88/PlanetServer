@@ -1,3 +1,6 @@
+PlanetServer/build
+PlanetServer/dist
+PlanetServer/dist/PlanetServer.jar
 UnityClient/PlanetServer/bin
 UnityClient/PlanetServer/obj
 UnityClient/PsTest/bin
@@ -5,3 +8,6 @@ UnityClient/PsTest/obj
 Demos/Unity/Walkaround/client/Library
 Demos/Unity/Walkaround/client/Build
 Demos/Unity/Walkaround/client/Temp
+Demos/Unity/Walkaround/server/build
+Demos/Unity/Walkaround/server/dist
+Demos/Unity/Walkaround/server/lib/PlanetServer.jar

@@ -1,20 +1,22 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package planetserver.core;
 
+import java.util.Map;
 import java.util.Properties;
-import java.util.concurrent.ConcurrentHashMap;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.util.HashMap;
+
 import planetserver.PSApi;
-import planetserver.handler.BasicClientRequestHandler;
 import planetserver.network.PsObject;
 import planetserver.room.RoomManager;
 import planetserver.session.UserSession;
+import planetserver.handler.BasicClientRequestHandler;
+import planetserver.handler.BasicServerEvent;
+import planetserver.handler.exceptions.PsException;
+import planetserver.requests.RequestType;
 import planetserver.util.PSConstants;
 import planetserver.util.PSEvents;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  *
@@ -22,147 +24,187 @@ import planetserver.util.PSEvents;
  */
 public class PSExtension
 {
-   private static final Logger logger = LoggerFactory.getLogger( PSExtension.class );
-     
-   private ConcurrentHashMap<String, Class<?>> requestHandlers;
-   private RoomManager roomManager;
-   private PSApi psApi;
-   private Properties properties;
-   
-   public PSExtension()
-   {
-        requestHandlers = new ConcurrentHashMap<String,Class<?>>();
+    private static final Logger logger = LoggerFactory.getLogger(PSExtension.class);
+    private Map<String, Class<?>> eventHandlers;
+    private Map<String, Class<?>> requestHandlers;
+    private RoomManager roomManager;
+    private PSApi psApi;
+    private Properties properties;
+
+    public PSExtension()
+    {
+        eventHandlers = new HashMap<String, Class<?>>();
+        requestHandlers = new HashMap<String, Class<?>>();
         //TODO: setup the api class!
         //lets create a threadpool here so we can forard any requests onto the thread pool!
-   }
-   
-   protected void addRequestHandler(String requestId, Class<?> theClass)
-   {
-       requestHandlers.put(requestId, theClass);
-   }
-
-   protected void removeRequestHandler(String requestId)
-   {
-        requestHandlers.remove(requestId);
-   }
-   
-    public void handlePolicyRequest(UserSession user) 
-    {
-       String NEWLINE = "\r\n";  
-       String policyString =   "<?xml version=\"1.0\"?>" + NEWLINE +
-            "<!DOCTYPE cross-domain-policy SYSTEM \"/xml/dtds/cross-domain-policy.dtd\">" + NEWLINE +
-            "" + NEWLINE +
-            "<!-- Policy file for xmlsocket://socks.example.com -->" + NEWLINE +
-            "<cross-domain-policy> " + NEWLINE +
-            "" + NEWLINE +
-            "   <!-- This is a master socket policy file -->" + NEWLINE +
-            "   <!-- No other socket policies on the host will be permitted -->" + NEWLINE +
-            "   <site-control permitted-cross-domain-policies=\"master-only\"/>" + NEWLINE +
-            "" + NEWLINE +
-            "   <!-- Instead of setting to-ports=\"*\", administrator's can use ranges and commas -->" + NEWLINE +
-            "   <allow-access-from domain=\"*\" to-ports=\"*\" />" + NEWLINE +
-            "" + NEWLINE +
-            "</cross-domain-policy>" + NEWLINE;   
-          
-       
-         //handles sending back the policy request!
-         user.getChannelWriter().sendPolicy(policyString);
     }
-   
-   
-   /**
-    * Directs the request to the appropriate registered handler
-    * 
-    * This method needs to be thread safe since it may be accessed by multiple threads
-    * @param requestId
-    * @param sender
-    * @param params 
-    */
-   public void handleClientRequest(UserSession user, PsObject params) 
-   {
-      String command = params.getString(PSConstants.COMMAND);
-      String baseCommand = getBaseCommand(command);
-       //first check if the command is registered!!!
-      if (requestHandlers.containsKey(baseCommand) == false)
-      {
-         logger.warn("USER SENT UNREGISTERED COMMAND :" + baseCommand);
-         return;
-      }
 
-      //only allow the command through if its a login command, or the user is already authenticated!
-      if (command.equalsIgnoreCase(PSEvents.Login.getCode()) || user.isAuthenticated())
-      {
+    protected void addEventHandler(String eventId, Class<?> theClass)
+    {
+        eventHandlers.put(eventId, theClass);
+    }
+    
+    protected void removeEventHandler(String eventId)
+    {
+        eventHandlers.remove(eventId);
+    }
+    
+    protected void addRequestHandler(String requestId, Class<?> theClass)
+    {
+        requestHandlers.put(requestId, theClass);
+    }
+
+    protected void removeRequestHandler(String requestId)
+    {
+        requestHandlers.remove(requestId);
+    }
+
+    public void handleEventRequest(RequestType request, UserSession user, PsObject params)
+    {
+        Class<?> eventClass = eventHandlers.get(request.getName());
+        
+        if (eventClass != null)
+        {        
+            try
+            {
+                Object event = eventClass.newInstance();  // InstantiationException
+                BasicServerEvent serverEvent = (BasicServerEvent)event;
+                
+                switch (request)
+                {
+                    case LOGIN:
+                        login(serverEvent, user, params);
+                        break;
+                }
+                
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+    
+    private void login(BasicServerEvent event, UserSession user, PsObject params)
+    {
+        try
+        {
+            PsObject loginData = new PsObject();
+            params.setPsObject(PSConstants.LOGIN_DATA, loginData);
+            
+            event.handleServerEvent(user, params);
+      
+            user.setAuthenticated(true);
+            
+            PsObject ret = new PsObject();
+            ret.setString(PSConstants.REQUEST_TYPE, PSEvents.LOGIN);
+            ret.setBoolean(PSConstants.LOGIN_SUCCESS, true);
+            ret.setPsObject(PSConstants.LOGIN_DATA, params);
+            
+            user.getChannelWriter().send(ret);
+        }
+        catch (PsException e)
+        {
+            PsObject ret = new PsObject();
+            ret.setString(PSConstants.REQUEST_TYPE, PSEvents.LOGIN);
+            ret.setBoolean(PSConstants.LOGIN_SUCCESS, false);            
+            ret.setString(PSConstants.LOGIN_MSG, e.getMessage());
+            ret.setPsObject(PSConstants.LOGIN_DATA, e.getPsObject());
+            
+            user.getChannelWriter().send(ret);
+        }
+    }
+    
+    /**
+     * Directs the request to the appropriate registered handler
+     * 
+     * This method needs to be thread safe since it may be accessed by multiple threads
+     * @param requestId
+     * @param sender
+     * @param params 
+     */
+    public void handleClientRequest(UserSession user, PsObject params)
+    {
+        String command = params.getString(PSConstants.COMMAND);
+        String baseCommand = getBaseCommand(command);
+        
+        //first check if the command is registered!!!
+        if (requestHandlers.containsKey(baseCommand) == false)
+        {
+            logger.warn("USER SENT UNREGISTERED COMMAND :" + baseCommand);
+            return;
+        }
+
+        //only allow the command through if its a login command, or the user is already authenticated!
+        if (user.isAuthenticated())
+        {
             try
             {
                 Class<?> handlerClass = requestHandlers.get(baseCommand);
-                Object handler  = handlerClass.newInstance();  // InstantiationException
+                Object handler = handlerClass.newInstance();  // InstantiationException
                 BasicClientRequestHandler bcrHandler = (BasicClientRequestHandler)handler;
                 bcrHandler.setRoomManager(this.roomManager);
                 bcrHandler.setProperties(this.properties);
                 bcrHandler.handleClientRequest(command, user, params);
-            } 
+            }
             catch (Exception e)
             {
-                  e.printStackTrace();
-            }          
-      }
-      else
-      {
-        logger.warn("USER WAS NOT AUTHENTICATED TO SEND THIS COMMAND!");
-      }
-      
-   }   
-   
-   private String getBaseCommand(String command)
-   {
+                e.printStackTrace();
+            }
+        }
+        else
+        {
+            logger.warn("USER WAS NOT AUTHENTICATED TO SEND THIS COMMAND!");
+        }
+    }
+
+    private String getBaseCommand(String command)
+    {
         //split it on the period
         String[] commandParts = command.split("\\.");
         if (commandParts.length > 1)
         {
             return commandParts[0];
         }
-        else 
+        else
         {
             return command;
         }
-   }
-       
-   
-   /**
-    * Called when server is shut down
-    */
-   public void destroy()
-   {
-    
-   }   
-   
-   /**
-    * Called when server is initialized
-    */
+    }
+
+    /**
+     * Called when server is shut down
+     */
+    public void destroy()
+    {
+    }
+
+    /**
+     * Called when server is initialized
+     */
     public void init()
     {
-       
+        // make sure there is always at least an empty login handler
+        addEventHandler(PSEvents.LOGIN, BaseLoginHandler.class); 
     }
-   
 
     public void setRoomManager(RoomManager roomManager)
     {
         this.roomManager = roomManager;
-    }   
-    
+    }
+
     public void trace(String msg)
     {
         logger.debug(msg);
     }
 
-    public Properties getProperties() {
+    public Properties getProperties()
+    {
         return properties;
     }
 
-    public void setProperties(Properties properties) {
+    public void setProperties(Properties properties)
+    {
         this.properties = properties;
     }
-  
-   
-
 }

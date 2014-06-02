@@ -49,11 +49,19 @@
      <Compile Include="Assets\Scripts\Camera\CamFollow.cs" />
      <Compile Include="Assets\Scripts\Constants.cs" />
      <Compile Include="Assets\Scripts\Game\GameController.cs" />
+     <Compile Include="Assets\Scripts\Login\LoginController.cs" />
      <Compile Include="Assets\Scripts\Map\MapData.cs" />
      <Compile Include="Assets\Scripts\Player\Player.cs" />
      <Compile Include="Assets\Scripts\Player\PlayerDirection.cs" />
      <Compile Include="Assets\Scripts\Player\PlayerStatus.cs" />
+     <Compile Include="Assets\Scripts\PrefabUtility.cs" />
+     <Compile Include="Assets\Scripts\Server\Server.cs" />
+     <Compile Include="Assets\Scripts\Shot\Shot.cs" />
+     <Compile Include="Assets\Scripts\Utility.cs" />
      <None Include="Assets\Resources\Maps\map1.xml" />
+ <Reference Include="PlanetServer">
+ <HintPath>Assets\Plugins\PlanetServer.dll</HintPath>
+ </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
