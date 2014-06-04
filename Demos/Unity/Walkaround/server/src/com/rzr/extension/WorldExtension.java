@@ -4,15 +4,13 @@ import planetserver.core.PSExtension;
 import planetserver.util.PSEvents;
 
 import com.rzr.handler.LoginHandler;
+import com.rzr.request.PlayerRequest;
 import com.rzr.service.ServiceManager;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.rzr.util.Command;
 
 public class WorldExtension extends PSExtension
 {
-    private static final Logger logger = LoggerFactory.getLogger(WorldExtension.class);
-    
     @Override
     public void init()
     {
@@ -26,6 +24,10 @@ public class WorldExtension extends PSExtension
     public void destroy()
     {
        super.destroy();
+    
+        removeEventHandler(PSEvents.LOGIN);    
+        
+        removeRequestHandler(Command.Player.getCode());
     }
  
     private void startServices()
@@ -35,6 +37,8 @@ public class WorldExtension extends PSExtension
  
     public void registerHandlers()
     {
-        addEventHandler(PSEvents.LOGIN, LoginHandler.class);       
+        addEventHandler(PSEvents.LOGIN, LoginHandler.class);    
+        
+        addRequestHandler(Command.Player.getCode(), PlayerRequest.class);
     }
 }

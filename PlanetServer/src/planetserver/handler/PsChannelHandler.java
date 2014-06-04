@@ -91,10 +91,19 @@ public class PsChannelHandler extends SimpleChannelHandler
 
             RequestType request = RequestType.get(messageIn.getInteger(PSConstants.REQUEST_TYPE));
      
-            if (request == RequestType.EXTENSION)
-                extension.handleClientRequest(session, messageIn);
-            else
-                extension.handleEventRequest(request, session, messageIn);
+            switch (request)
+            {
+                case EXTENSION:
+                    extension.handleClientRequest(session, messageIn);
+                    break;
+                    
+                case PUBLIC_MESSAGE:
+                    sendPublicMessage(session, messageIn);
+                    break;
+                    
+                default:
+                    extension.handleEventRequest(request, session, messageIn);
+            }  
         }
         //since this should be the last handler, no need to worry about other handlers upstream
         //super.messageReceived(ctx, e);
@@ -104,6 +113,11 @@ public class PsChannelHandler extends SimpleChannelHandler
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
     {
         e.getCause().printStackTrace();
+    }
+    
+    private void sendPublicMessage(UserSession user, PsObject obj)
+    {
+        roomManager.sendMessageToCurrentRoom(user, obj);
     }
     
     private void handlePolicyRequest(UserSession user) 

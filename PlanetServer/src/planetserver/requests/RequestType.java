@@ -14,7 +14,8 @@ public enum RequestType
     NONE(0, PSEvents.NONE),
     LOGIN(1, PSEvents.LOGIN),
     LOGOUT(2, PSEvents.LOGOUT),
-    EXTENSION(3, PSEvents.EXTENSION);
+    EXTENSION(3, PSEvents.EXTENSION),
+    PUBLIC_MESSAGE(4, PSEvents.PUBLIC_MESSAGE);
 
     private static final Map<Integer, RequestType> lookup = new HashMap<Integer, RequestType>();
 
@@ -27,7 +28,7 @@ public enum RequestType
     private int _code;
     private String _name;
     
-    private RequestType(int code, String name) { _code = code; _name = name;}
+    private RequestType(int code, String name) { _code = code; _name = name; }
 
     public int getCode() { return _code; }
     

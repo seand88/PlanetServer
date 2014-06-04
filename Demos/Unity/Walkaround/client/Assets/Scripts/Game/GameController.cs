@@ -1,10 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
+
+using PS.Events;
 
 public class GameController : MonoBehaviour
 {
 	public LayerMask PlayerLayer;
 	public LayerMask OthersLayer;
+
+	private Server _server;
 
 	private MapData _map;
 
@@ -13,6 +18,9 @@ public class GameController : MonoBehaviour
 
 	void Start()
 	{
+		_server = Utility.GetServer();
+		_server.ExtensionEvent += OnResponse;
+
 		_cam = Camera.main.GetComponent<CamFollow>();
 
 		LoadMap();
@@ -56,6 +64,15 @@ public class GameController : MonoBehaviour
 			_player.Shoot();
 	}
 
+	void OnDestroy()
+	{
+		_server.ExtensionEvent -= OnResponse;
+	}
+
+	private void OnResponse(Dictionary<string, object> data)
+	{
+	}
+
 	private void LoadMap()
 	{
 		_map = new MapData();
@@ -67,7 +84,7 @@ public class GameController : MonoBehaviour
 			{
 				string path = PrefabUtility.GetTilePath(_map.GetTileResource(x, y));
 				
-				GameObject go = (GameObject)Object.Instantiate(Resources.Load<GameObject>(path), new Vector3(x, -y, 0), Quaternion.identity);
+				Object.Instantiate(Resources.Load<GameObject>(path), new Vector3(x, -y, 0), Quaternion.identity);
 			}
 		}
 

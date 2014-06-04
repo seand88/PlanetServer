@@ -137,7 +137,7 @@ namespace PS.Core
                     if (state.buffer[bytesRead - 1] == 0)
                     {
                         object obj = JsonReader.Deserialize(state.sb.ToString());
-
+                        
                         if (obj is IDictionary)
                         {
                             Dictionary<string, object> dict = (Dictionary<string, object>)obj;
@@ -145,7 +145,9 @@ namespace PS.Core
                             string request = Convert.ToString(value["v"]) + "_event";
 
                             _eventQueue.Enqueue(MessageHelper.CreateMessage(request, dict));
-                        }               
+                        }
+
+                        state.sb.Length = 0;
                     }
                 }
                 else
@@ -198,25 +200,6 @@ namespace PS.Core
 
             for (int i = 0; i < events.Length; ++i)
                 _dispatcher.DispatchEvent(events[i]);
-
-            /*object obj = this.eventsLocker;
-            Monitor.Enter(obj);
-            BaseEvent[] array;
-            try
-            {
-                array = this.eventsQueue.ToArray();
-                this.eventsQueue.Clear();
-            }
-            finally
-            {
-                Monitor.Exit(obj);
-            }
-            BaseEvent[] array2 = array;
-            for (int i = 0; i < array2.Length; i++)
-            {
-                BaseEvent evt = array2[i];
-                this.Dispatcher.DispatchEvent(evt);
-            }*/
         }
 
         public EventDispatcher EventDispatcher { get { return _dispatcher; } }

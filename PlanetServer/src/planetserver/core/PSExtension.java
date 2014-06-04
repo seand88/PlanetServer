@@ -102,6 +102,15 @@ public class PSExtension
             ret.setPsObject(PSConstants.LOGIN_DATA, params);
             
             user.getChannelWriter().send(ret);
+            
+            if (roomManager.roomExists("world"))
+            {
+                roomManager.getRoom("world").addUserToRoom(user);
+            }
+            else
+            {
+                roomManager.createRoom("world", user);
+            }
         }
         catch (PsException e)
         {

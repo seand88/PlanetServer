@@ -36,8 +36,8 @@ namespace PS.Core
 
         public event EventDelegate<ExtensionEvent> ExtensionEvent
         {
-            add { AddEventHandler(MessageType.LoginEvent, value); }
-            remove { RemoveEventHandler(MessageType.LoginEvent, value); }
+            add { AddEventHandler(MessageType.ExtensionEvent, value); }
+            remove { RemoveEventHandler(MessageType.ExtensionEvent, value); }
         }
 
         public event EventDelegate<PublicMessageEvent> PublicMessageEvent
@@ -53,7 +53,7 @@ namespace PS.Core
 
         private void RemoveEventHandler(MessageType type, Delegate handler)
         {
-            _handlers.RemoveHandler(type.ToString(), handler);
+            _handlers.RemoveHandler(type.Name, handler);
         }               
 
         public void DispatchEvent(PsEvent e)

@@ -1,18 +1,26 @@
 package com.rzr.util;
 
+import java.util.EnumSet;
+import java.util.HashMap;
+import java.util.Map;
+
 public enum Command
 {    
-    Character("character");
+    Player("player");
     
-    private final String code;
-    
-    private Command(String code)
+    private static final Map<String, Command> lookup = new HashMap<String, Command>();
+
+    static
     {
-        this.code = code;
+        for (Command e : EnumSet.allOf(Command.class))
+            lookup.put(e.getCode(), e);
     }
 
-    public String getCode()
-    {
-        return code;
-    }    
+    private String _code;
+    
+    private Command(String code) { _code = code;}
+
+    public String getCode() { return _code; }
+
+    public static Command get(int code) { return lookup.get(code); }    
 }

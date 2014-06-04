@@ -6,6 +6,7 @@ public class PSEvents
     public static final String LOGIN  = "login";
     public static final String LOGOUT = "logout";
     public static final String EXTENSION = "extension";
+    public static final String PUBLIC_MESSAGE = "public_message";
 }
 
 

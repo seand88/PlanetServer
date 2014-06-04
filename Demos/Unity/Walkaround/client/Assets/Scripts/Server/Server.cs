@@ -13,6 +13,7 @@ public class Server : MonoBehaviour
 {
 	public event ServerEvent ConnectionEvent;
 	public event ServerEvent LoginEvent;
+	public event ServerEvent ExtensionEvent;
 
 	public static string NAME = "PSServer";
 
@@ -33,7 +34,7 @@ public class Server : MonoBehaviour
 	{
 		if (_server != null)
 		{
-			//_server.EventDispatcher.RemoveListener(PsEvent.EXTENSION_RESPONSE, OnResponse);
+			_server.EventDispatcher.ExtensionEvent -= OnResponse;
 		}
 	}
 
@@ -67,12 +68,15 @@ public class Server : MonoBehaviour
 	{
 		_server.EventDispatcher.LoginEvent -= OnLogin;
 
+		_server.EventDispatcher.ExtensionEvent += OnResponse;
+
 		if (LoginEvent != null)
 			LoginEvent(new Dictionary<string, object>() { { "success", e.Success }, { "message", e.Message }, { "data", e.Data } });
 	}
 
-	/*private void OnResponse(PsEvent e)
+	private void OnResponse(ExtensionEvent e)
 	{
-		PsObject psobj = (PsObject)e.Data["psobj"];
-	}*/
+		if (ExtensionEvent != null)
+			ExtensionEvent(new Dictionary<string, object>() { { "command", e.Command }, { "subcommand", e.SubCommand }, { "data", e.Data } });
+	}
 }

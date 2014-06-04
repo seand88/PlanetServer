@@ -1,15 +1,10 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package planetserver.room;
 
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
+
 import planetserver.network.PsObject;
 import planetserver.session.UserSession;
-import planetserver.user.UserInfo;
 
 /**
  *
@@ -36,8 +31,7 @@ public class RoomManager
         if (!this.rooms.contains(name)) 
         {
            this.rooms.put(name, room);	
-        }
-      
+        }      
      } 
 
     public void deleteRoom(String name, UserSession user) 

@@ -6,41 +6,32 @@ package planetserver.user;
  */
 public class UserInfo 
 {
-    private String userid;
-    private String authToken;
-    private String platform;
-    
+    private String _userid;
+    private String _authToken;
+
     public UserInfo()
     {
-        this.userid = "";
-        this.authToken = "";
-        this.platform = "";
-    }   
-    
-    public String getUserid() {
-        return userid;
+        _userid = "";
+        _authToken = "";
     }
 
-    public void setUserid(String userid) {
-        this.userid = userid;
+    public String getUserid()
+    {
+        return _userid;
     }
 
-    public String getAuthToken() {
-        return authToken;
+    public void setUserid(String userid)
+    {
+        _userid = userid;
     }
 
-    public void setAuthToken(String authToken) {
-        this.authToken = authToken;
+    public String getAuthToken()
+    {
+        return _authToken;
     }
 
-    public String getPlatform() {
-        return platform;
+    public void setAuthToken(String authToken)
+    {
+        _authToken = authToken;
     }
-
-    public void setPlatform(String platform) {
-        this.platform = platform;
-    }    
-    
-
-    
 }
