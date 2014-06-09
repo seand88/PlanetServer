@@ -7,7 +7,7 @@ using PS.Data;
 using PS.Events;
 using PS.Requests;
 
-public delegate void ServerEvent(Dictionary<string, object> data);
+public delegate void ServerEvent(Dictionary<string, object> message);
 
 public class Server : MonoBehaviour
 {
@@ -35,6 +35,8 @@ public class Server : MonoBehaviour
 		if (_server != null)
 		{
 			_server.EventDispatcher.ExtensionEvent -= OnResponse;
+
+			_server.Send(new LogoutRequest());
 		}
 	}
 
@@ -54,6 +56,11 @@ public class Server : MonoBehaviour
 		LoginRequest login = new LoginRequest(username, password);
 
 		_server.Send(login);
+	}
+
+	public void SendRequest(PsRequest request)
+	{
+		_server.Send(request);
 	}
 
 	private void OnConnection(ConnectionEvent e)

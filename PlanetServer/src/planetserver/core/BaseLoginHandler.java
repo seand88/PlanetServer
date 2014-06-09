@@ -1,6 +1,6 @@
 package planetserver.core;
 
-import planetserver.handler.BasicServerEvent;
+import planetserver.handler.BasicServerEventHandler;
 import planetserver.handler.exceptions.PsException;
 import planetserver.network.PsObject;
 import planetserver.session.UserSession;
@@ -9,7 +9,7 @@ import planetserver.session.UserSession;
  *
  * @author Mike
  */
-class BaseLoginHandler extends BasicServerEvent
+class BaseLoginHandler extends BasicServerEventHandler
 {
     @Override
     public void handleServerEvent(UserSession sender, PsObject params) throws PsException

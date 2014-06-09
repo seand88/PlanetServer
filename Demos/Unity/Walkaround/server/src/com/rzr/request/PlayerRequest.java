@@ -1,12 +1,11 @@
 package com.rzr.request;
 
-import java.util.List;
-
 import planetserver.handler.BasicClientRequestHandler;
 import planetserver.network.PsObject;
 import planetserver.session.UserSession;
 
-import util.UserHelper;
+import com.rzr.login.game.Game;
+import util.RoomHelper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,17 +24,23 @@ public class PlayerRequest extends BasicClientRequestHandler
     public void handleClientRequest(String command, UserSession sender, PsObject params)
     {
         String requestId = getSplitCommand(command);
+
         try
         {
             PlayerEnum action = PlayerEnum.valueOf(requestId.toUpperCase());
             
             logger.debug("GOT REQUEST : " + action);
             
-            List<UserSession> users = UserHelper.getRecipientsList(roomManager.getRoom(sender.getCurrentRoom()));
+            Game game = RoomHelper.getGame(this);
             
-            send(command, new PsObject(), users);
+            switch (action)
+            {
+                case START:
+                    game.start(command, sender, params);
+                    break;
+            }
         }
-        catch (Exception e)
+        catch (IllegalArgumentException e)
         {
             logger.debug("Unknown request for " + requestId);
         }

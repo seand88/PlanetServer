@@ -13,7 +13,7 @@ import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import planetserver.handler.BasicServerEvent;
+import planetserver.handler.BasicServerEventHandler;
 import planetserver.util.JarLoader;
 
 /**

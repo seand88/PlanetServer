@@ -46,29 +46,29 @@ public class PsChannelHandler extends SimpleChannelHandler
     public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e)
     {
         UserSession session = this.sessionManager.getSession(e.getChannel());
-        //remove the user from any rooms they are in!
-        if (session.getCurrentRoom().length() > 1)
+        
+        if (session != null)
         {
-            roomManager.getRoom(session.getCurrentRoom()).removeUserFromRoom(session);
+            extension.logout(session);
+
+            //disconnect the session!
+            this.sessionManager.unregisterSession(session);
+            logger.debug("Session Removed, Total Sessions: " + sessionManager.getNumberOfSessions());
         }
-        //disconnect the session!
-        this.sessionManager.unregisterSession(session);
-        // logger.debug("Session Removed, Total Sessions: " + sessionManager.getNumberOfSessions());
     }
 
     @Override
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e)
     { 
         UserSession session = this.sessionManager.getSession(e.getChannel());
-        //remove the user from any rooms they are in!
-        if (session.getCurrentRoom().length() > 1)
+        
+        if (session != null)
         {
-            logger.debug("REMOVING USER FROM ROOM WITH ID: " + session.getId());
-            roomManager.getRoom(session.getCurrentRoom()).removeUserFromRoom(session);
+            extension.logout(session);
+
+            this.sessionManager.unregisterSession(session);
+            logger.debug("Channel Closed, Total Sessions: " + sessionManager.getNumberOfSessions());
         }
-        //disconnect the session!
-        this.sessionManager.unregisterSession(session);
-        logger.debug("Channel Closed, Total Sessions: " + sessionManager.getNumberOfSessions());
     }
 
     @Override

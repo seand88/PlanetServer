@@ -2,11 +2,11 @@ package com.rzr.handler;
 
 import planetserver.network.PsObject;
 import planetserver.session.UserSession;
-import planetserver.handler.BasicServerEvent;
+import planetserver.handler.BasicServerEventHandler;
 import planetserver.handler.exceptions.PsException;
 import planetserver.util.PSConstants;
 
-public class LoginHandler extends BasicServerEvent
+public class LoginHandler extends BasicServerEventHandler
 {
     @Override
     public void handleServerEvent(UserSession sender, PsObject params) throws PsException

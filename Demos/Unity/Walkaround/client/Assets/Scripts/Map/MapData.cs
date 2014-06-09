@@ -61,8 +61,8 @@ public class MapData
 
 	public bool CanMove(Vector2 target)
 	{
-		if ((int)target.x >= 0 && (int)target.x < Width && (int)target.y <= 0 && (int)target.y > -Height && _walkable[(int)target.x + Width * (int)-target.y]) { Debug.Log("true");
-			return true;}
+		if ((int)target.x >= 0 && (int)target.x < Width && (int)target.y <= 0 && (int)target.y > -Height && _walkable[(int)target.x + Width * (int)-target.y])
+			return true;
 
 		return false;
 	}

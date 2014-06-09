@@ -1,5 +1,6 @@
 package planetserver.core;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.HashMap;
@@ -9,7 +10,7 @@ import planetserver.network.PsObject;
 import planetserver.room.RoomManager;
 import planetserver.session.UserSession;
 import planetserver.handler.BasicClientRequestHandler;
-import planetserver.handler.BasicServerEvent;
+import planetserver.handler.BasicServerEventHandler;
 import planetserver.handler.exceptions.PsException;
 import planetserver.requests.RequestType;
 import planetserver.util.PSConstants;
@@ -25,55 +26,60 @@ import org.slf4j.LoggerFactory;
 public class PSExtension
 {
     private static final Logger logger = LoggerFactory.getLogger(PSExtension.class);
-    private Map<String, Class<?>> eventHandlers;
-    private Map<String, Class<?>> requestHandlers;
-    private RoomManager roomManager;
-    private PSApi psApi;
-    private Properties properties;
+    
+    private Map<String, Class<?>> _eventHandlers;
+    private Map<String, Class<?>> _requestHandlers;
+    private RoomManager _roomManager;
+    private PSApi _psApi;
+    private Properties _properties;
 
     public PSExtension()
     {
-        eventHandlers = new HashMap<String, Class<?>>();
-        requestHandlers = new HashMap<String, Class<?>>();
+        _eventHandlers = new HashMap<String, Class<?>>();
+        _requestHandlers = new HashMap<String, Class<?>>();
         //TODO: setup the api class!
         //lets create a threadpool here so we can forard any requests onto the thread pool!
     }
 
     protected void addEventHandler(String eventId, Class<?> theClass)
     {
-        eventHandlers.put(eventId, theClass);
+        _eventHandlers.put(eventId, theClass);
     }
     
     protected void removeEventHandler(String eventId)
     {
-        eventHandlers.remove(eventId);
+        _eventHandlers.remove(eventId);
     }
     
     protected void addRequestHandler(String requestId, Class<?> theClass)
     {
-        requestHandlers.put(requestId, theClass);
+        _requestHandlers.put(requestId, theClass);
     }
 
     protected void removeRequestHandler(String requestId)
     {
-        requestHandlers.remove(requestId);
+        _requestHandlers.remove(requestId);
     }
 
     public void handleEventRequest(RequestType request, UserSession user, PsObject params)
     {
-        Class<?> eventClass = eventHandlers.get(request.getName());
+        Class<?> eventClass = _eventHandlers.get(request.getName());
         
         if (eventClass != null)
         {        
             try
             {
                 Object event = eventClass.newInstance();  // InstantiationException
-                BasicServerEvent serverEvent = (BasicServerEvent)event;
+                BasicServerEventHandler serverEvent = (BasicServerEventHandler)event;
                 
                 switch (request)
                 {
                     case LOGIN:
                         login(serverEvent, user, params);
+                        break;
+                        
+                    case LOGOUT:
+                        logout(user);
                         break;
                 }
                 
@@ -85,16 +91,18 @@ public class PSExtension
         }
     }
     
-    private void login(BasicServerEvent event, UserSession user, PsObject params)
+    private void login(BasicServerEventHandler event, UserSession user, PsObject params)
     {
         try
         {
             PsObject loginData = new PsObject();
             params.setPsObject(PSConstants.LOGIN_DATA, loginData);
             
+            event.setParentExtension(this);
             event.handleServerEvent(user, params);
       
             user.setAuthenticated(true);
+            user.getUserInfo().setUserid(params.getString(PSConstants.USER_NAME));
             
             PsObject ret = new PsObject();
             ret.setString(PSConstants.REQUEST_TYPE, PSEvents.LOGIN);
@@ -103,13 +111,13 @@ public class PSExtension
             
             user.getChannelWriter().send(ret);
             
-            if (roomManager.roomExists("world"))
+            if (_roomManager.roomExists("world"))
             {
-                roomManager.getRoom("world").addUserToRoom(user);
+                _roomManager.getRoom("world").addUserToRoom(user);
             }
             else
             {
-                roomManager.createRoom("world", user);
+                _roomManager.createRoom("world", user);
             }
         }
         catch (PsException e)
@@ -124,6 +132,36 @@ public class PSExtension
         }
     }
     
+    public void logout(UserSession user)
+    {
+        user.setAuthenticated(false);
+
+        //remove the user from any rooms they are in!
+        if (user.getCurrentRoom().length() > 1)
+        {
+            logger.debug("REMOVING USER FROM ROOM WITH ID: " + user.getId());
+            _roomManager.getRoom(user.getCurrentRoom()).removeUserFromRoom(user);
+        }
+        
+        // if there is a logout handler registered then process it
+        Class<?> eventClass = _eventHandlers.get(RequestType.LOGOUT.getName());
+        
+        if (eventClass != null)
+        {        
+            try
+            {
+                Object event = eventClass.newInstance();  // InstantiationException
+                BasicServerEventHandler serverEvent = (BasicServerEventHandler)event;
+                serverEvent.setParentExtension(this);
+                serverEvent.handleServerEvent(user, null);
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+   
     /**
      * Directs the request to the appropriate registered handler
      * 
@@ -138,7 +176,7 @@ public class PSExtension
         String baseCommand = getBaseCommand(command);
         
         //first check if the command is registered!!!
-        if (requestHandlers.containsKey(baseCommand) == false)
+        if (_requestHandlers.containsKey(baseCommand) == false)
         {
             logger.warn("USER SENT UNREGISTERED COMMAND :" + baseCommand);
             return;
@@ -149,11 +187,12 @@ public class PSExtension
         {
             try
             {
-                Class<?> handlerClass = requestHandlers.get(baseCommand);
+                Class<?> handlerClass = _requestHandlers.get(baseCommand);
                 Object handler = handlerClass.newInstance();  // InstantiationException
                 BasicClientRequestHandler bcrHandler = (BasicClientRequestHandler)handler;
-                bcrHandler.setRoomManager(this.roomManager);
-                bcrHandler.setProperties(this.properties);
+                bcrHandler.setParentExtension(this);
+                bcrHandler.setRoomManager(_roomManager);
+                bcrHandler.setProperties(_properties);
                 bcrHandler.handleClientRequest(command, user, params);
             }
             catch (Exception e)
@@ -167,6 +206,27 @@ public class PSExtension
         }
     }
 
+    public void send(String cmdName, PsObject params, UserSession recipient)
+    {
+        PsObject psobj = new PsObject();
+        psobj.setString(PSConstants.REQUEST_TYPE, PSEvents.EXTENSION);
+        psobj.setString(PSConstants.COMMAND, cmdName);
+        psobj.setPsObject(PSConstants.EXTENSION_DATA, params);
+        
+        recipient.getChannelWriter().send(psobj);
+    }
+    
+    public void send(String cmdName, PsObject params, List<UserSession> recipientList)
+    {
+        PsObject psobj = new PsObject();
+        psobj.setString(PSConstants.REQUEST_TYPE, PSEvents.EXTENSION);
+        psobj.setString(PSConstants.COMMAND, cmdName);
+        psobj.setPsObject(PSConstants.EXTENSION_DATA, params);
+       
+        for (UserSession recipient : recipientList)
+            recipient.getChannelWriter().send(psobj);
+    }
+    
     private String getBaseCommand(String command)
     {
         //split it on the period
@@ -197,23 +257,23 @@ public class PSExtension
         addEventHandler(PSEvents.LOGIN, BaseLoginHandler.class); 
     }
 
+    public RoomManager getRoomManager()
+    {
+        return _roomManager;
+    }
+    
     public void setRoomManager(RoomManager roomManager)
     {
-        this.roomManager = roomManager;
-    }
-
-    public void trace(String msg)
-    {
-        logger.debug(msg);
+        _roomManager = roomManager;
     }
 
     public Properties getProperties()
     {
-        return properties;
+        return _properties;
     }
 
     public void setProperties(Properties properties)
     {
-        this.properties = properties;
+        _properties = properties;
     }
 }

@@ -40,25 +40,25 @@ public class LoginController : MonoBehaviour
 			ShowStatus();
 	}
 
-	private void OnConnectionEvent(Dictionary<string, object> data)
+	private void OnConnectionEvent(Dictionary<string, object> message)
 	{
 		_server.ConnectionEvent -= OnConnectionEvent;
 
-		bool success = (bool)data["success"];
+		bool success = (bool)message["success"];
 		if (success)
 		{
 			_status += "\nConnected to server";
 			_showLogin = true;
 		}
 		else
-			_status += "\nError connecting to server: " + data["error"];
+			_status += "\nError connecting to server: " + message["error"];
 	}
 
-	private void OnLoginEvent(Dictionary<string, object> data)
+	private void OnLoginEvent(Dictionary<string, object> message)
 	{
 		_server.LoginEvent -= OnLoginEvent;
 
-		bool success = (bool)data["success"];
+		bool success = (bool)message["success"];
 		if (success)
 		{
 			_showLogin = false;
@@ -68,7 +68,7 @@ public class LoginController : MonoBehaviour
 		}
 		else
 		{
-			_status += "\nError logging in: " + data["message"];
+			_status += "\nError logging in: " + message["message"];
 		
 			_username = "";
 			_password = "";

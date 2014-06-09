@@ -3,6 +3,7 @@ package planetserver.handler;
 import java.util.List;
 import java.util.Properties;
 
+import planetserver.core.PSExtension;
 import planetserver.network.PsObject;
 import planetserver.room.RoomManager;
 import planetserver.session.UserSession;
@@ -11,8 +12,9 @@ import planetserver.util.PSEvents;
 
 public class BasicClientRequestHandler 
 {
-    protected RoomManager roomManager;
-    protected Properties properties;
+    protected PSExtension _parentExtension;
+    protected RoomManager _roomManager;
+    protected Properties _properties;
 
     /**
      * Handles the incoming client request to this specific handler
@@ -59,18 +61,28 @@ public class BasicClientRequestHandler
         }
     }
 
+    public PSExtension getParentExtension()
+    {
+        return _parentExtension;
+    }
+    
+    public void setParentExtension(PSExtension extension)
+    {
+        _parentExtension = extension;
+    }
+    
     public void setRoomManager(RoomManager roomManager)
     {
-        this.roomManager = roomManager;
+        _roomManager = roomManager;
     }
 
     public Properties getProperties()
     {
-        return properties;
+        return _properties;
     }
 
     public void setProperties(Properties properties)
     {
-        this.properties = properties;
+        _properties = properties;
     }        
  }

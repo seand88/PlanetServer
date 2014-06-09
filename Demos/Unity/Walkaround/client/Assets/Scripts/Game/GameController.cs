@@ -2,7 +2,9 @@
 using System.Collections;
 using System.Collections.Generic;
 
+using PS.Data;
 using PS.Events;
+using PS.Requests;
 
 public class GameController : MonoBehaviour
 {
@@ -24,9 +26,24 @@ public class GameController : MonoBehaviour
 		_cam = Camera.main.GetComponent<CamFollow>();
 
 		LoadMap();
-		_player = CreateCharacter(3, new Vector2(10, -10));
+
+		int type = Random.Range(0, 3);
+		int x = Random.Range(5, 20);
+		int y = -10;
+
+		_player = CreateCharacter(type, new Vector2(x, y));
 
 		_cam.Target = _player.gameObject;
+
+		PsArray position = new PsArray();
+		position.AddInt(x);
+		position.AddInt(y);
+
+		PsObject psobj = new PsObject();
+		psobj.SetInt(ServerConstants.PLAYER_TYPE, type);
+		psobj.SetPsArray(ServerConstants.PLAYER_POSITION, position);
+
+		_server.SendRequest(new ExtensionRequest("player.start", psobj));
 	}
 	
 	void Update()
@@ -69,8 +86,10 @@ public class GameController : MonoBehaviour
 		_server.ExtensionEvent -= OnResponse;
 	}
 
-	private void OnResponse(Dictionary<string, object> data)
+	private void OnResponse(Dictionary<string, object> message)
 	{
+		string subCommand = (string)message["subcommand"];
+		PsObject data = (PsObject)message["data"];
 	}
 
 	private void LoadMap()
