@@ -61,54 +61,9 @@ namespace PS.Data
             _content = new List<PsDataWrapper>();
         }
 
-        public void AddInt(int value)
+        public bool GetBoolean(int key)
         {
-            _content.Add(new PsDataWrapper((int)Constants.PsType.Integer, value));
-        }
-
-        public void AddNumber(float value)
-        {
-            _content.Add(new PsDataWrapper((int)Constants.PsType.Number, value));
-        }
-
-        public void AddString(string value)
-        {
-            _content.Add(new PsDataWrapper((int)Constants.PsType.String, value));
-        }
-
-        public void AddBoolean(bool value)
-        {
-            _content.Add(new PsDataWrapper((int)Constants.PsType.Boolean, value));
-        }
-
-        public void AddFloat(float value)
-        {
-            _content.Add(new PsDataWrapper((int)Constants.PsType.Float, value));
-        }
-
-        public void AddLong(long value)
-        {
-            _content.Add(new PsDataWrapper((int)Constants.PsType.Long, value));
-        }
-
-        public void AddPsObject(PsObject value)
-        {
-            _content.Add(new PsDataWrapper((int)Constants.PsType.PSObject, value));
-        }
-
-        public void AddPsArray(PsArray value)
-        {
-            _content.Add(new PsDataWrapper((int)Constants.PsType.PSArray, value));
-        }
-
-        public int GetInt(int key)
-        {
-            return (int)_content[key].v;
-        }
-
-        public float GetNumber(int key)
-        {
-            return (float)_content[key].v;
+            return (bool)_content[key].v;
         }
 
         public string GetString(int key)
@@ -116,9 +71,14 @@ namespace PS.Data
             return (string)_content[key].v;
         }
 
-        public bool GetBoolean(int key)
+        public int GetInt(int key)
         {
-            return (bool)_content[key].v;
+            return (int)_content[key].v;
+        }
+
+        public long GetLong(int key)
+        {
+            return (long)_content[key].v;
         }
 
         public float GetFloat(int key)
@@ -126,9 +86,9 @@ namespace PS.Data
             return (float)_content[key].v;
         }
 
-        public float GetLong(int key)
+        public double GetDouble(int key)
         {
-            return (long)_content[key].v;
+            return (double)_content[key].v;
         }
 
         public PsObject GetPsObject(int key)
@@ -139,6 +99,56 @@ namespace PS.Data
         public PsArray GetPsArray(int key)
         {
             return (PsArray)_content[key].v;
+        }
+
+        public double GetNumber(int key)
+        {
+            return (double)_content[key].v;
+        }
+
+        public void AddBoolean(bool value)
+        {
+            _content.Add(new PsDataWrapper((int)Constants.PsType.Boolean, value));
+        }
+
+        public void AddString(string value)
+        {
+            _content.Add(new PsDataWrapper((int)Constants.PsType.String, value));
+        }
+
+        public void AddInt(int value)
+        {
+            _content.Add(new PsDataWrapper((int)Constants.PsType.Integer, value));
+        }
+
+        public void AddLong(long value)
+        {
+            _content.Add(new PsDataWrapper((int)Constants.PsType.Long, value));
+        }
+
+        public void AddFloat(float value)
+        {
+            _content.Add(new PsDataWrapper((int)Constants.PsType.Float, value));
+        }
+
+        public void AddDouble(double value)
+        {
+            _content.Add(new PsDataWrapper((int)Constants.PsType.Double, value));
+        }
+        
+        public void AddPsObject(PsObject value)
+        {
+            _content.Add(new PsDataWrapper((int)Constants.PsType.PSObject, value));
+        }
+
+        public void AddPsArray(PsArray value)
+        {
+            _content.Add(new PsDataWrapper((int)Constants.PsType.PSArray, value));
+        }
+
+        public void AddNumber(double value)
+        {
+            _content.Add(new PsDataWrapper((int)Constants.PsType.Number, value));
         }
 
         public int Count { get { return _content.Count; } }

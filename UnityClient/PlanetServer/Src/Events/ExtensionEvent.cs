@@ -22,9 +22,10 @@ namespace PS.Events
         override public void Create(Dictionary<string, object> dict)
         {
             Dictionary<string, object> tmp = (Dictionary<string, object>)dict[REQUEST_COMMAND];
-            Command = Convert.ToString(tmp["v"]);
-
-            string[] split = Command.Split('.');
+            string str = Convert.ToString(tmp["v"]);
+            
+            string[] split = str.Split('.');
+            Command = split[0];
             if (split.Length == 2)
                 SubCommand = split[1];
 

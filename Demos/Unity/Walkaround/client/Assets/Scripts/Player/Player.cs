@@ -30,7 +30,8 @@ public class Player : MonoBehaviour
 
 	private Vector3 _target;
 
-	private bool _canShoot;
+	public bool CanShoot { get; private set; }
+	public bool CanMove { get { return Status == PlayerStatus.Standing; } } 
 
 	void Start()
 	{
@@ -38,7 +39,7 @@ public class Player : MonoBehaviour
 
 		Position = transform.position;
 
-		_canShoot = true;
+		CanShoot = true;
 	}
 	
 	void Update()
@@ -78,7 +79,9 @@ public class Player : MonoBehaviour
 					Face(Direction);
 
 				Status = PlayerStatus.Standing;
-				Position = transform.position;
+
+				Vector2 pos = new Vector2((int)transform.position.x, (int)transform.position.y);
+				Position = pos;
             }
         }
     }
@@ -101,7 +104,7 @@ public class Player : MonoBehaviour
 				
 			case PlayerDirection.Up:
 				_renderer.sprite = StandUp;
-	                break;
+	            break;
         }
     }
     
@@ -156,11 +159,11 @@ public class Player : MonoBehaviour
 
 	public void Shoot()
 	{
-		if (_canShoot)
+		if (CanShoot)
 		{
 			Shot.Create(this, GetDirectionVector());
 			StartCoroutine(ShotTimer());
-			_canShoot = false;
+			CanShoot = false;
 		}
 	}
 
@@ -168,6 +171,6 @@ public class Player : MonoBehaviour
 	{
 		yield return new WaitForSeconds(ShotDelay);
 		
-		_canShoot = true;
+		CanShoot = true;
     }
 }

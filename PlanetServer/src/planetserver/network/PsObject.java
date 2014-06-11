@@ -31,52 +31,149 @@ public class PsObject
 
     public int getInteger(String key)
     {
-        return (Integer) _content.get(key).getV();
+        return (Integer)_content.get(key).getV();
     }
 
     public long getLong(String key)
     {
-        return (Long) _content.get(key).getV();
+        return (Long)_content.get(key).getV();
     }
 
     public String getString(String key)
     {
-        return (String) _content.get(key).getV();
+        return (String)_content.get(key).getV();
     }
 
     public boolean getBoolean(String key)
     {
-        Boolean b = (Boolean) _content.get(key).getV();
+        Boolean b = (Boolean)_content.get(key).getV();
         return b;
-        //return (b == 1);
     }
 
     public float getFloat(String key)
     {
-        return (Float) _content.get(key).getV();
+        return (Float)_content.get(key).getV();
     }
 
     public double getDouble(String key)
     {
-        return (Double) _content.get(key).getV();
-    }
-
-    //number from as3, just returns a double
-    public double getNumber(String key)
-    {
-        return (Double) _content.get(key).getV();
+        return (Double)_content.get(key).getV();
     }
 
     public PsArray getPsArray(String key)
     {
-        return (PsArray) _content.get(key).getV();
+        return (PsArray)_content.get(key).getV();
     }
 
     public PsObject getPsObject(String key)
     {
-        return (PsObject) _content.get(key).getV();
+        return (PsObject)_content.get(key).getV();
+    }
+    
+    //number from as3, just returns a double
+    public double getNumber(String key)
+    {
+        return (Double)_content.get(key).getV();
+    }
+    
+    public List<Boolean> getBoolArray(String name)
+    {
+        List<Boolean> list = new ArrayList<Boolean>();
+        for (PsDataWrapper data : getPsArray(name).content)
+        {
+            Object value = data.getV();
+            list.add((Boolean)value);
+        }
+        return list;
+    }
+    
+    public List<String> getStringArray(String name)
+    {
+        List<String> list = new ArrayList<String>();
+        for (PsDataWrapper data : getPsArray(name).content)
+        {
+            Object value = data.getV();
+            list.add((String)value);
+        }
+        return list;
     }
 
+    public List<Integer> getIntegerArray(String name)
+    {
+        List<Integer> list = new ArrayList<Integer>();
+        for (PsDataWrapper data : getPsArray(name).content)
+        {
+            Object value = data.getV();
+            list.add((Integer)value);
+        }
+        return list;
+    }
+
+    public List<Long> getLongArray(String name)
+    {
+        List<Long> list = new ArrayList<Long>();
+        for (PsDataWrapper data : getPsArray(name).content)
+        {
+            Object value = data.getV();
+            list.add((Long)value);
+        }
+        return list;
+    }
+
+    public List<Float> getFloatArray(String name)
+    {
+        List<Float> list = new ArrayList<Float>();
+        for (PsDataWrapper data : getPsArray(name).content)
+        {
+            Object value = data.getV();
+            list.add((Float)value);
+        }
+        return list;
+    }
+
+    public List<Double> getDoubleArray(String name)
+    {
+        List<Double> list = new ArrayList<Double>();
+        for (PsDataWrapper data : getPsArray(name).content)
+        {
+            Object value = data.getV();
+            list.add((Double)value);
+        }
+        return list;
+    }
+
+    public List<PsObject> getPsObjectArray(String name)
+    {
+        List<PsObject> list = new ArrayList<PsObject>();
+        for (PsDataWrapper data : getPsArray(name).content)
+        {
+            Object value = data.getV();
+            list.add((PsObject)value);
+        }
+        return list;
+    }
+    
+    public List<Double> getNumberArray(String name)
+    {
+        List<Double> list = new ArrayList<Double>();
+        for (PsDataWrapper data : getPsArray(name).content)
+        {
+            Object value = data.getV();
+            list.add((Double)value);
+        }
+        return list;
+    }
+
+    public void setBoolean(String key, boolean value)
+    {
+        _content.put(key, new PsDataWrapper(value, PsType.TYPE_BOOLEAN));
+    }
+    
+    public void setString(String key, String value)
+    {
+        _content.put(key, new PsDataWrapper(value, PsType.TYPE_STRING));
+    }
+    
     public void setInteger(String key, int value)
     {
         _content.put(key, new PsDataWrapper(value, PsType.TYPE_INTEGER));
@@ -86,17 +183,7 @@ public class PsObject
     {
         _content.put(key, new PsDataWrapper(value, PsType.TYPE_LONG));
     }
-
-    public void setString(String key, String value)
-    {
-        _content.put(key, new PsDataWrapper(value, PsType.TYPE_STRING));
-    }
-
-    public void setBoolean(String key, boolean value)
-    {
-        _content.put(key, new PsDataWrapper(value, PsType.TYPE_BOOLEAN));
-    }
-
+    
     public void setFloat(String key, float value)
     {
         _content.put(key, new PsDataWrapper(value, PsType.TYPE_FLOAT));
@@ -107,19 +194,19 @@ public class PsObject
         _content.put(key, new PsDataWrapper(value, PsType.TYPE_DOUBLE));
     }
 
-    public void setNumber(String key, double value)
+    public void setPsObject(String key, PsObject value)
     {
-        _content.put(key, new PsDataWrapper(value, PsType.TYPE_NUMBER));
+        _content.put(key, new PsDataWrapper(value, PsType.TYPE_PSOBJECT));
     }
-
+    
     public void setPsArray(String key, PsArray value)
     {
         _content.put(key, new PsDataWrapper(value, PsType.TYPE_PSARRAY));
     }
 
-    public void setPsObject(String key, PsObject value)
+    public void setNumber(String key, double value)
     {
-        _content.put(key, new PsDataWrapper(value, PsType.TYPE_PSOBJECT));
+        _content.put(key, new PsDataWrapper(value, PsType.TYPE_NUMBER));
     }
 
     public void setBoolArray(String string, List<Boolean> clctn)
@@ -128,6 +215,16 @@ public class PsObject
         for (Boolean element : clctn)
         {
             psArray.addBoolean(element);
+        }
+        setPsArray(string, psArray);
+    }
+    
+    public void setStringArray(String string, List<String> clctn)
+    {
+        PsArray psArray = new PsArray();
+        for (String element : clctn)
+        {
+            psArray.addString(element);
         }
         setPsArray(string, psArray);
     }
@@ -171,81 +268,15 @@ public class PsObject
         }
         setPsArray(string, psArray);
     }
-
-    public void setStringArray(String string, List<String> clctn)
+ 
+    public void setPsObjectArray(String string, List<PsObject> clctn)
     {
         PsArray psArray = new PsArray();
-        for (String element : clctn)
+        for (PsObject element : clctn)
         {
-            psArray.addString(element);
+            psArray.addPsObject(element);
         }
         setPsArray(string, psArray);
-    }
-
-    public List<Boolean> getBoolArray(String name)
-    {
-        List<Boolean> list = new ArrayList<Boolean>();
-        for (PsDataWrapper data : getPsArray(name).content)
-        {
-            Object value = data.getV();
-            list.add((Boolean) value);
-        }
-        return list;
-    }
-
-    public List<Integer> getIntegerArray(String name)
-    {
-        List<Integer> list = new ArrayList<Integer>();
-        for (PsDataWrapper data : getPsArray(name).content)
-        {
-            Object value = data.getV();
-            list.add((Integer) value);
-        }
-        return list;
-    }
-
-    public List<Long> getLongArray(String name)
-    {
-        List<Long> list = new ArrayList<Long>();
-        for (PsDataWrapper data : getPsArray(name).content)
-        {
-            Object value = data.getV();
-            list.add((Long) value);
-        }
-        return list;
-    }
-
-    public List<Float> getFloatArray(String name)
-    {
-        List<Float> list = new ArrayList<Float>();
-        for (PsDataWrapper data : getPsArray(name).content)
-        {
-            Object value = data.getV();
-            list.add((Float) value);
-        }
-        return list;
-    }
-
-    public List<Double> getDoubleArray(String name)
-    {
-        List<Double> list = new ArrayList<Double>();
-        for (PsDataWrapper data : getPsArray(name).content)
-        {
-            Object value = data.getV();
-            list.add((Double) value);
-        }
-        return list;
-    }
-
-    public List<String> getStringArray(String name)
-    {
-        List<String> list = new ArrayList<String>();
-        for (PsDataWrapper data : getPsArray(name).content)
-        {
-            Object value = data.getV();
-            list.add((String) value);
-        }
-        return list;
     }
 
     public String toJsonString()
@@ -322,7 +353,6 @@ public class PsObject
 
     public JSONObject toJSONObject()
     {
-
         JSONObject jObject = new JSONObject();
 
         for (String key : _content.keySet())
@@ -353,7 +383,6 @@ public class PsObject
 
     public Map<String, Object> toMap()
     {
-
         Map<String, Object> map = new HashMap<String, Object>();
 
         for (String key : _content.keySet())

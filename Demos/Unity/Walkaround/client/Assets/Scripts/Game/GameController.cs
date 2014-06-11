@@ -17,6 +17,7 @@ public class GameController : MonoBehaviour
 
 	private CamFollow _cam;
 	private Player _player;
+	private List<Player> _otherPlayers;
 
 	void Start()
 	{
@@ -29,56 +30,59 @@ public class GameController : MonoBehaviour
 
 		int type = Random.Range(0, 3);
 		int x = Random.Range(5, 20);
-		int y = -10;
+		int y = Random.Range(0, -10);
 
 		_player = CreateCharacter(type, new Vector2(x, y));
 
 		_cam.Target = _player.gameObject;
 
-		PsArray position = new PsArray();
-		position.AddInt(x);
-		position.AddInt(y);
+		_otherPlayers = new List<Player>();
 
 		PsObject psobj = new PsObject();
 		psobj.SetInt(ServerConstants.PLAYER_TYPE, type);
-		psobj.SetPsArray(ServerConstants.PLAYER_POSITION, position);
+		psobj.SetIntArray(ServerConstants.PLAYER_POSITION, new List<int>() { x, y });
 
 		_server.SendRequest(new ExtensionRequest("player.start", psobj));
 	}
 	
 	void Update()
 	{
-		if (Input.GetKey(KeyCode.DownArrow))
+		if (_player.CanMove)
 		{
-			if (_map.CanMove(_player.Position + Player.DIR_DOWN))
-				_player.MoveTo(PlayerDirection.Down);
-			else
-				_player.Face(PlayerDirection.Down);
-        }
-		else if (Input.GetKey(KeyCode.LeftArrow))
-		{
-			if (_map.CanMove(_player.Position + Player.DIR_LEFT))
-				_player.MoveTo(PlayerDirection.Left);
-			else
-				_player.Face(PlayerDirection.Left);
-        }
-		else if (Input.GetKey(KeyCode.RightArrow))
-		{
-			if (_map.CanMove(_player.Position + Player.DIR_RIGHT))
-				_player.MoveTo(PlayerDirection.Right);
-			else
-				_player.Face(PlayerDirection.Right);
-        }
-		else if (Input.GetKey(KeyCode.UpArrow))
-		{
-			if (_map.CanMove(_player.Position + Player.DIR_UP))
-				_player.MoveTo(PlayerDirection.Up);
-			else
-				_player.Face(PlayerDirection.Up);
+			if (Input.GetKey(KeyCode.DownArrow))
+			{
+				if (_map.CanMove(_player.Position + Player.DIR_DOWN))
+					_player.MoveTo(PlayerDirection.Down);
+				else
+					_player.Face(PlayerDirection.Down);
+	        }
+			else if (Input.GetKey(KeyCode.LeftArrow))
+			{
+				if (_map.CanMove(_player.Position + Player.DIR_LEFT))
+					_player.MoveTo(PlayerDirection.Left);
+				else
+					_player.Face(PlayerDirection.Left);
+	        }
+			else if (Input.GetKey(KeyCode.RightArrow))
+			{
+				if (_map.CanMove(_player.Position + Player.DIR_RIGHT))
+					_player.MoveTo(PlayerDirection.Right);
+				else
+					_player.Face(PlayerDirection.Right);
+	        }
+			else if (Input.GetKey(KeyCode.UpArrow))
+			{
+				if (_map.CanMove(_player.Position + Player.DIR_UP))
+					_player.MoveTo(PlayerDirection.Up);
+				else
+					_player.Face(PlayerDirection.Up);
+			}
 		}
 
-		if (Input.GetKey(KeyCode.Space))
+		if (Input.GetKey(KeyCode.Space) && _player.CanShoot)
+		{
 			_player.Shoot();
+		}
 	}
 
 	void OnDestroy()
@@ -88,8 +92,42 @@ public class GameController : MonoBehaviour
 
 	private void OnResponse(Dictionary<string, object> message)
 	{
+		string command = (string)message["command"];
 		string subCommand = (string)message["subcommand"];
 		PsObject data = (PsObject)message["data"];
+	
+		if (command == PlayerCommand.BASE_COMMAND)
+		{
+			PlayerCommand.PlayerEnum action = (PlayerCommand.PlayerEnum)System.Enum.Parse(typeof(PlayerCommand.PlayerEnum), subCommand, true);
+
+			switch (action)
+			{
+				case PlayerCommand.PlayerEnum.InfoPlayer:
+					AddPlayers(data);
+					break;
+
+				case PlayerCommand.PlayerEnum.InfoGroup:
+					AddPlayer(data);
+					break;
+			}
+		}
+	}
+
+	private void AddPlayers(PsObject psobj)
+	{
+		List<PsObject> players = psobj.GetPsObjectArray(ServerConstants.PLAYER_OBJ);
+
+		for (int i = 0; i < players.Count; ++i)
+			AddPlayer(players[i]);
+	}
+
+	private void AddPlayer(PsObject psobj)
+	{
+		string name = psobj.GetString(ServerConstants.PLAYER_NAME);
+		int type = psobj.GetInt(ServerConstants.PLAYER_TYPE);
+		List<int> position = psobj.GetIntArray(ServerConstants.PLAYER_POSITION);
+
+		CreateCharacter(type, new Vector2(position[0], position[1]));
 	}
 
 	private void LoadMap()

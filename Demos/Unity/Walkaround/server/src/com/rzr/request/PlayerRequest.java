@@ -5,12 +5,11 @@ import planetserver.network.PsObject;
 import planetserver.session.UserSession;
 
 import com.rzr.login.game.Game;
+import com.rzr.login.game.PlayerCommand.PlayerEnum;
 import util.RoomHelper;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-enum PlayerEnum { START, MOVE, SHOOT };
 
 /**
  *

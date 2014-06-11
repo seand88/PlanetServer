@@ -92,6 +92,134 @@ namespace PS.Data
             return _content.ContainsKey(key);
         }
 
+        public int GetInt(string key)
+        {
+            return (int)_content[key].v;
+        }
+
+        public float GetNumber(string key)
+        {
+            return (float)_content[key].v;
+        }
+
+        public string GetString(string key)
+        {
+            return (string)_content[key].v;
+        }
+
+        public bool GetBoolean(string key)
+        {
+            return (bool)_content[key].v;
+        }
+
+        public float GetFloat(string key)
+        {
+            return (float)_content[key].v;
+        }
+
+        public float GetLong(string key)
+        {
+            return (long)_content[key].v;
+        }
+
+        public PsObject GetPsObject(string key)
+        {
+            return (PsObject)_content[key].v;
+        }
+
+        public PsArray GetPsArray(string key)
+        {
+            return (PsArray)_content[key].v;
+        }
+
+        public List<bool> GetBoolArray(string key)
+        {            
+            PsArray psa = GetPsArray(key);
+
+            List<bool> list = new List<bool>();
+            for (int i = 0; i < psa.Count; ++i)
+                list.Add(psa.GetBoolean(i));
+   
+            return list;
+        }
+
+        public List<string> GetStringArray(string key)
+        {
+            PsArray psa = GetPsArray(key);
+
+            List<string> list = new List<string>();
+            for (int i = 0; i < psa.Count; ++i)
+                list.Add(psa.GetString(i));
+
+            return list;
+        }
+
+        public List<int> GetIntArray(string key)
+        {
+            PsArray psa = GetPsArray(key);
+
+            List<int> list = new List<int>();
+            for (int i = 0; i < psa.Count; ++i)
+                list.Add(psa.GetInt(i));
+
+            return list;
+        }
+
+        public List<long> GetLongArray(string key)
+        {
+            PsArray psa = GetPsArray(key);
+
+            List<long> list = new List<long>();
+            for (int i = 0; i < psa.Count; ++i)
+                list.Add(psa.GetLong(i));
+
+            return list;
+        }
+
+        public List<float> GetFloatArray(string key)
+        {
+            PsArray psa = GetPsArray(key);
+
+            List<float> list = new List<float>();
+            for (int i = 0; i < psa.Count; ++i)
+                list.Add(psa.GetFloat(i));
+
+            return list;
+        }
+
+        public List<double> GetDoubleArray(string key)
+        {
+            PsArray psa = GetPsArray(key);
+
+            List<double> list = new List<double>();
+            for (int i = 0; i < psa.Count; ++i)
+                list.Add(psa.GetDouble(i));
+
+            return list;
+        }
+
+        public List<PsObject> GetPsObjectArray(string key)
+        {
+            PsArray psa = GetPsArray(key);
+
+            List<PsObject> list = new List<PsObject>();
+            for (int i = 0; i < psa.Count; ++i)
+                list.Add(psa.GetPsObject(i));
+
+            return list;
+        }
+
+        public List<double> GetNumberArray(string key)
+        {
+            PsArray psa = GetPsArray(key);
+
+            List<double> list = new List<double>();
+            for (int i = 0; i < psa.Count; ++i)
+                list.Add(psa.GetNumber(i));
+
+            return list;
+        }
+
         public void SetInt(string key, int value)
         {
             _content[key] = new PsDataWrapper((int)Constants.PsType.Integer, value);
@@ -132,44 +260,100 @@ namespace PS.Data
             _content[key] = new PsDataWrapper((int)Constants.PsType.PSArray, value);
         }
 
-        public int GetInt(string key)
+        public void SetBooleanArray(string key, List<bool> value)
         {
-            return (int)_content[key].v;
+            PsArray array = new PsArray();
+
+            for (int i = 0; i < value.Count; ++i)
+            {
+                array.AddBoolean(value[i]);
+            }
+
+            SetPsArray(key, array);
         }
 
-        public float GetNumber(string key)
+        public void SetStringArray(string key, List<string> value)
         {
-            return (float)_content[key].v;
+            PsArray array = new PsArray();
+
+            for (int i = 0; i < value.Count; ++i)
+            {
+                array.AddString(value[i]);
+            }
+
+            SetPsArray(key, array);
         }
 
-        public string GetString(string key)
+        public void SetIntArray(string key, List<int> value)
         {
-            return (string)_content[key].v;
+            PsArray array = new PsArray();
+
+            for (int i = 0; i < value.Count; ++i)
+            {
+                array.AddInt(value[i]);
+            }
+
+            SetPsArray(key, array);
         }
 
-        public bool GetBoolean(string key)
+        public void SetLongArray(string key, List<long> value)
         {
-            return (bool)_content[key].v;
+            PsArray array = new PsArray();
+
+            for (int i = 0; i < value.Count; ++i)
+            {
+                array.AddLong(value[i]);
+            }
+
+            SetPsArray(key, array);
         }
 
-        public float GetFloat(string key)
+        public void SetFloatArray(string key, List<float> value)
         {
-            return (float)_content[key].v;
+            PsArray array = new PsArray();
+
+            for (int i = 0; i < value.Count; ++i)
+            {
+                array.AddFloat(value[i]);
+            }
+
+            SetPsArray(key, array);
         }
 
-        public float GetLong(string key)
+        public void SetDoubleArray(string key, List<double> value)
         {
-            return (long)_content[key].v;
+            PsArray array = new PsArray();
+
+            for (int i = 0; i < value.Count; ++i)
+            {
+                array.AddDouble(value[i]);
+            }
+
+            SetPsArray(key, array);
         }
 
-        public PsObject GetPsObject(string key)
+        public void SetPsObjectArray(string key, List<PsObject> value)
         {
-            return (PsObject)_content[key].v;
+            PsArray array = new PsArray();
+            
+            for (int i = 0; i < value.Count; ++i)
+            {
+                array.AddPsObject(value[i]);
+            }
+
+            SetPsArray(key, array);
         }
 
-        public PsArray GetPsArray(string key)
+        public void SetPsObjectArray(string key, List<double> value)
         {
-            return (PsArray)_content[key].v;
+            PsArray array = new PsArray();
+
+            for (int i = 0; i < value.Count; ++i)
+            {
+                array.AddNumber(value[i]);
+            }
+
+            SetPsArray(key, array);
         }
 
         public object ToObject()

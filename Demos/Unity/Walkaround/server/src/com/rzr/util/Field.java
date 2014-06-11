@@ -2,12 +2,10 @@ package com.rzr.util;
 
 public enum Field
 {
-    //auth
-    UserNotCreated("usernotcreated"),
-    
-    // login
-    UserName("username"),
-    Password("password");
+    PlayerObj("pl01"),
+    PlayerName("pl02"),
+    PlayerType("pl03"),
+    PlayerPosition("pl04");
     
     private final String code;
     

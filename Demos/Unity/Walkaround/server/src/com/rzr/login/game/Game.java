@@ -8,6 +8,9 @@ import planetserver.network.PsObject;
 
 import com.rzr.extension.WorldExtension;
 import com.rzr.util.Field;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Map;
 import util.UserHelper;
 
 import org.slf4j.Logger;
@@ -52,19 +55,47 @@ public class Game
     {
         int type = params.getInteger(Field.PlayerType.getCode());
         List<Integer> position = params.getIntegerArray(Field.PlayerPosition.getCode());
+   
+        // let all the other players know a player just joined
+        List<UserSession> users = UserHelper.getRecipientsList(_extension.getRoomManager().getRoom(session.getCurrentRoom()), session);
+        
+        if (users.size() > 0)
+        {
+            PsObject psobj = new PsObject();
+            psobj.setString(Field.PlayerName.getCode(), session.getUserInfo().getUserid());
+            psobj.setInteger(Field.PlayerType.getCode(), type);
+            psobj.setIntegerArray(Field.PlayerPosition.getCode(), position);
+
+            _extension.send(PlayerCommand.getCommand(PlayerCommand.PlayerEnum.INFOGROUP), psobj, users);
+        }
+
+        logger.debug(_users.entrySet().toString());
+        
+        // let the player that just joined know about all the users currently in the game
+        if (_users.size() > 0)
+        {        
+            List<PsObject> players = new ArrayList<PsObject>();
+
+            for (Map.Entry<Integer, Player> entry : _users.entrySet()) 
+            { 
+                Player player = entry.getValue();
+                
+                PsObject obj = new PsObject();
+                obj.setString(Field.PlayerName.getCode(), player.getUserSession().getUserInfo().getUserid());
+                obj.setInteger(Field.PlayerType.getCode(), player.getType()); 
+                obj.setIntegerArray(Field.PlayerPosition.getCode(), Arrays.asList(player.getPositionX(), player.getPositionY()));
+                players.add(obj);
+            }
+            
+            PsObject psobj = new PsObject();
+            psobj.setPsObjectArray(Field.PlayerObj.getCode(), players);
+        
+            _extension.send(PlayerCommand.getCommand(PlayerCommand.PlayerEnum.INFOPLAYER), psobj, session);
+        }
         
         Player player = userAdded(session);
         player.setType(type);
         player.setPositionX(position.get(0));
         player.setPositionY(position.get(1));
-               
-        List<UserSession> users = UserHelper.getRecipientsList(_extension.getRoomManager().getRoom(session.getCurrentRoom()));
-        
-        PsObject psobj = new PsObject();
-        psobj.setString(Field.PlayerName.getCode(), session.getUserInfo().getUserid());
-        psobj.setInteger(Field.PlayerType.getCode(), type);
-        psobj.setIntegerArray(Field.PlayerPosition.getCode(), position);
-        
-        _extension.send(command, psobj, users);
     }
 }
