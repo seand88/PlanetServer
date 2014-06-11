@@ -60,7 +60,7 @@ public class Room
         //loop through all the user sessions and send the information!
         for (UserSession session : _roomUsers.values())
         {
-            session.getChannelWriter().send(msg);
+            session.send(msg);
         }
     }
 }    

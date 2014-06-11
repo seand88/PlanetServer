@@ -109,7 +109,7 @@ public class PSExtension
             ret.setBoolean(PSConstants.LOGIN_SUCCESS, true);
             ret.setPsObject(PSConstants.LOGIN_DATA, params);
             
-            user.getChannelWriter().send(ret);
+            user.send(ret);
             
             if (_roomManager.roomExists("world"))
             {
@@ -128,7 +128,7 @@ public class PSExtension
             ret.setString(PSConstants.LOGIN_MSG, e.getMessage());
             ret.setPsObject(PSConstants.LOGIN_DATA, e.getPsObject());
             
-            user.getChannelWriter().send(ret);
+            user.send(ret);
         }
     }
     
@@ -213,7 +213,7 @@ public class PSExtension
         psobj.setString(PSConstants.COMMAND, cmdName);
         psobj.setPsObject(PSConstants.EXTENSION_DATA, params);
         
-        recipient.getChannelWriter().send(psobj);
+        recipient.send(psobj);
     }
     
     public void send(String cmdName, PsObject params, List<UserSession> recipientList)
@@ -224,7 +224,7 @@ public class PSExtension
         psobj.setPsObject(PSConstants.EXTENSION_DATA, params);
        
         for (UserSession recipient : recipientList)
-            recipient.getChannelWriter().send(psobj);
+            recipient.send(psobj);
     }
     
     private String getBaseCommand(String command)

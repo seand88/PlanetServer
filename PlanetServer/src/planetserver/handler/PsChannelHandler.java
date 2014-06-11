@@ -8,7 +8,6 @@ import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
 
-import planetserver.channel.PsChannelWriter;
 import planetserver.core.PSExtension;
 import planetserver.network.PsObject;
 import planetserver.requests.RequestType;
@@ -37,7 +36,7 @@ public class PsChannelHandler extends SimpleChannelHandler
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
     {
-        UserSession session = new UserSession(e.getChannel(), new PsChannelWriter(e.getChannel()));
+        UserSession session = new UserSession(e.getChannel());
         this.sessionManager.registerSession(session);
         logger.debug("Session Added, Total Sessions: " + sessionManager.getNumberOfSessions());
     }
@@ -139,6 +138,6 @@ public class PsChannelHandler extends SimpleChannelHandler
             "</cross-domain-policy>" + NEWLINE;             
        
          //handles sending back the policy request!
-         user.getChannelWriter().sendPolicy(policyString);
+         user.sendPolicy(policyString);
     }
 }

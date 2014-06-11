@@ -33,7 +33,7 @@ public class BasicClientRequestHandler
         psobj.setString(PSConstants.COMMAND, cmdName);
         psobj.setPsObject(PSConstants.EXTENSION_DATA, params);
         
-        recipient.getChannelWriter().send(psobj);
+        recipient.send(psobj);
     }
     
     protected void send(String cmdName, PsObject params, List<UserSession> recipientList)
@@ -44,7 +44,7 @@ public class BasicClientRequestHandler
         psobj.setPsObject(PSConstants.EXTENSION_DATA, params);
        
         for (UserSession recipient : recipientList)
-            recipient.getChannelWriter().send(psobj);
+            recipient.send(psobj);
     }
 
     protected String getSplitCommand(String command)

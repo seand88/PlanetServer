@@ -2,8 +2,7 @@ package planetserver.session;
 
 import java.util.concurrent.atomic.AtomicInteger;
 import org.jboss.netty.channel.Channel;
-
-import planetserver.channel.ChannelWriter;
+import planetserver.network.PsObject;
 import planetserver.user.UserInfo;
 
 /**
@@ -17,15 +16,13 @@ public class UserSession
     private int _id; //unique id to the server, right now using the channel id
     private Channel _channel;
     private UserInfo _userInfo;
-    private ChannelWriter _channelWriter;
     private boolean _authenticated;
     private String _currentRoom;
     
-    public UserSession(Channel channel, ChannelWriter channelWriter) 
+    public UserSession(Channel channel) 
     {
         _id = counter.getAndIncrement();
         _channel = channel;
-        _channelWriter = channelWriter;
         _userInfo = new UserInfo();
         _currentRoom = "";
         _authenticated = false;
@@ -51,14 +48,15 @@ public class UserSession
         _userInfo = user;
     }
 
-    public ChannelWriter getChannelWriter()
-    {
-        return _channelWriter;
+    public void send(PsObject params)
+    {	
+        String message = params.toJsonString();
+        _channel.write(message + '\0');			
     }
 
-    public void setChannelWriter(ChannelWriter channelWriter)
+    public void sendPolicy(String policyString)
     {
-        _channelWriter = channelWriter;
+        _channel.write(policyString + '\0');	
     }
 
     public int getId()
