@@ -5,7 +5,8 @@ public enum Field
     PlayerObj("pl01"),
     PlayerName("pl02"),
     PlayerType("pl03"),
-    PlayerPosition("pl04");
+    PlayerPosition("pl04"),
+    PlayerHeading("pl05");
     
     private final String code;
     

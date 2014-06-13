@@ -17,7 +17,7 @@ public class GameController : MonoBehaviour
 
 	private CamFollow _cam;
 	private Player _player;
-	private List<Player> _otherPlayers;
+	private Dictionary<string, Player> _otherPlayers;
 
 	void Start()
 	{
@@ -36,52 +36,80 @@ public class GameController : MonoBehaviour
 
 		_cam.Target = _player.gameObject;
 
-		_otherPlayers = new List<Player>();
+		_otherPlayers = new Dictionary<string, Player>();
 
 		PsObject psobj = new PsObject();
 		psobj.SetInt(ServerConstants.PLAYER_TYPE, type);
 		psobj.SetIntArray(ServerConstants.PLAYER_POSITION, new List<int>() { x, y });
 
-		_server.SendRequest(new ExtensionRequest("player.start", psobj));
+		_server.SendRequest(new ExtensionRequest(PlayerCommand.GetCommand(PlayerCommand.PlayerEnum.Start), psobj));
 	}
 	
 	void Update()
 	{
 		if (_player.CanMove)
 		{
+			bool send = false;
+
 			if (Input.GetKey(KeyCode.DownArrow))
 			{
 				if (_map.CanMove(_player.Position + Player.DIR_DOWN))
+				{
 					_player.MoveTo(PlayerDirection.Down);
+					send = true;
+				}
 				else
 					_player.Face(PlayerDirection.Down);
 	        }
 			else if (Input.GetKey(KeyCode.LeftArrow))
 			{
 				if (_map.CanMove(_player.Position + Player.DIR_LEFT))
+				{
 					_player.MoveTo(PlayerDirection.Left);
+					send = true;
+				}
 				else
 					_player.Face(PlayerDirection.Left);
 	        }
 			else if (Input.GetKey(KeyCode.RightArrow))
 			{
 				if (_map.CanMove(_player.Position + Player.DIR_RIGHT))
+				{
 					_player.MoveTo(PlayerDirection.Right);
+					send = true;
+				}
 				else
 					_player.Face(PlayerDirection.Right);
 	        }
 			else if (Input.GetKey(KeyCode.UpArrow))
 			{
 				if (_map.CanMove(_player.Position + Player.DIR_UP))
+				{
 					_player.MoveTo(PlayerDirection.Up);
+					send = true;
+				}
 				else
 					_player.Face(PlayerDirection.Up);
+			}
+
+			if (send)
+			{
+				PsObject psobj = new PsObject();
+				psobj.SetIntArray(ServerConstants.PLAYER_POSITION, Utility.Vector2ToList(_player.Target));
+				
+				_server.SendRequest(new ExtensionRequest(PlayerCommand.GetCommand(PlayerCommand.PlayerEnum.Move), psobj));
 			}
 		}
 
 		if (Input.GetKey(KeyCode.Space) && _player.CanShoot)
 		{
 			_player.Shoot();
+
+			PsObject psobj = new PsObject();
+			psobj.SetIntArray(ServerConstants.PLAYER_POSITION, Utility.Vector2ToList(_player.Target));
+			psobj.SetIntArray(ServerConstants.PLAYER_HEADING, Utility.Vector2ToList(_player.GetDirectionVector()));
+			
+			_server.SendRequest(new ExtensionRequest(PlayerCommand.GetCommand(PlayerCommand.PlayerEnum.Shoot), psobj));
 		}
 	}
 
@@ -109,6 +137,14 @@ public class GameController : MonoBehaviour
 				case PlayerCommand.PlayerEnum.InfoGroup:
 					AddPlayer(data);
 					break;
+
+				case PlayerCommand.PlayerEnum.Move:
+					PlayerMove(data);
+					break;
+
+				case PlayerCommand.PlayerEnum.Shoot:
+					PlayerShoot(data);
+					break;
 			}
 		}
 	}
@@ -124,10 +160,41 @@ public class GameController : MonoBehaviour
 	private void AddPlayer(PsObject psobj)
 	{
 		string name = psobj.GetString(ServerConstants.PLAYER_NAME);
+		if (_otherPlayers.ContainsKey(name))
+			return;
+
 		int type = psobj.GetInt(ServerConstants.PLAYER_TYPE);
 		List<int> position = psobj.GetIntArray(ServerConstants.PLAYER_POSITION);
 
-		CreateCharacter(type, new Vector2(position[0], position[1]));
+		Player player = CreateCharacter(type, Utility.ListToVector2(position), OthersLayer);
+		_otherPlayers.Add(name, player);
+	}
+
+	private void PlayerMove(PsObject psobj)
+	{
+		string name = psobj.GetString(ServerConstants.PLAYER_NAME);
+
+		Player player = null;
+		_otherPlayers.TryGetValue(name, out player);
+		if (player == null)
+			return;
+
+		List<int> position = psobj.GetIntArray(ServerConstants.PLAYER_POSITION);
+		player.MoveTo(Utility.ListToVector2(position));
+	}
+
+	private void PlayerShoot(PsObject psobj)
+	{
+		string name = psobj.GetString(ServerConstants.PLAYER_NAME);
+		
+		Player player = null;
+		_otherPlayers.TryGetValue(name, out player);
+		if (player == null)
+			return;
+
+		List<int> position = psobj.GetIntArray(ServerConstants.PLAYER_POSITION);
+		List<int> heading = psobj.GetIntArray(ServerConstants.PLAYER_HEADING);
+		Shot.Create(player, Utility.ListToVector2(position), Utility.ListToVector2(heading));
 	}
 
 	private void LoadMap()

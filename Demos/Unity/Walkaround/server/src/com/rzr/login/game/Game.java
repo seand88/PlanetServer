@@ -51,7 +51,7 @@ public class Game
         _users.remove(session.getId());
     }
     
-    public void start(String command, UserSession session, PsObject params)
+    public void start(UserSession session, PsObject params)
     {
         int type = params.getInteger(Field.PlayerType.getCode());
         List<Integer> position = params.getIntegerArray(Field.PlayerPosition.getCode());
@@ -69,8 +69,6 @@ public class Game
             _extension.send(PlayerCommand.getCommand(PlayerCommand.PlayerEnum.INFOGROUP), psobj, users);
         }
 
-        logger.debug(_users.entrySet().toString());
-        
         // let the player that just joined know about all the users currently in the game
         if (_users.size() > 0)
         {        
@@ -97,5 +95,37 @@ public class Game
         player.setType(type);
         player.setPositionX(position.get(0));
         player.setPositionY(position.get(1));
+    }
+    
+    public void move(UserSession session, PsObject params)
+    {
+        List<Integer> position = params.getIntegerArray(Field.PlayerPosition.getCode());
+        
+        Player player = _users.get(session.getId());
+        player.setPositionX(position.get(0));
+        player.setPositionY(position.get(1));
+        
+        List<UserSession> users = UserHelper.getRecipientsList(_extension.getRoomManager().getRoom(session.getCurrentRoom()), session);
+        
+        PsObject psobj = new PsObject();
+        psobj.setString(Field.PlayerName.getCode(), session.getUserInfo().getUserid());
+        psobj.setIntegerArray(Field.PlayerPosition.getCode(), Arrays.asList(position.get(0), position.get(1)));
+        
+        _extension.send(PlayerCommand.getCommand(PlayerCommand.PlayerEnum.MOVE), psobj, users);
+    }
+    
+    public void shoot(UserSession session, PsObject params)
+    {
+        List<Integer> position = params.getIntegerArray(Field.PlayerPosition.getCode());
+        List<Integer> heading = params.getIntegerArray(Field.PlayerHeading.getCode());
+        
+         List<UserSession> users = UserHelper.getRecipientsList(_extension.getRoomManager().getRoom(session.getCurrentRoom()), session);
+        
+        PsObject psobj = new PsObject();
+        psobj.setString(Field.PlayerName.getCode(), session.getUserInfo().getUserid());
+        psobj.setIntegerArray(Field.PlayerPosition.getCode(), Arrays.asList(position.get(0), position.get(1)));
+        psobj.setIntegerArray(Field.PlayerHeading.getCode(), Arrays.asList(heading.get(0), heading.get(1)));
+        
+        _extension.send(PlayerCommand.getCommand(PlayerCommand.PlayerEnum.SHOOT), psobj, users);
     }
 }

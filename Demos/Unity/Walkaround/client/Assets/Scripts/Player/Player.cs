@@ -25,10 +25,9 @@ public class Player : MonoBehaviour
 	public PlayerStatus Status { get; private set; }
 	public PlayerDirection Direction { get; private set; }
 	public Vector2 Position { get; set; }
+	public Vector3 Target { get; private set; }
 
 	private SpriteRenderer _renderer;
-
-	private Vector3 _target;
 
 	public bool CanShoot { get; private set; }
 	public bool CanMove { get { return Status == PlayerStatus.Standing; } } 
@@ -46,7 +45,7 @@ public class Player : MonoBehaviour
 	{
 		if (Status == PlayerStatus.Walking)
 		{
-			transform.position = Vector3.MoveTowards(transform.position, _target, Time.deltaTime * Speed);
+			transform.position = Vector3.MoveTowards(transform.position, Target, Time.deltaTime * Speed);
 
 			Sprite[] arr = null;
 
@@ -73,7 +72,7 @@ public class Player : MonoBehaviour
 			index = index % arr.Length;
 			_renderer.sprite = arr[index];
 
-			if (transform.position == _target)
+			if (transform.position == Target)
 			{
 				if (!Input.anyKey)
 					Face(Direction);
@@ -108,6 +107,27 @@ public class Player : MonoBehaviour
         }
     }
     
+	public void MoveTo(Vector2 position)
+	{
+		Vector2 current = new Vector2(transform.position.x, transform.position.y);
+		if (position == current)
+			return;
+
+		Vector2 temp = (position - current).normalized;
+
+		if (temp == DIR_UP)
+			Direction = PlayerDirection.Up;
+		else if (temp == DIR_LEFT)
+			Direction = PlayerDirection.Left;
+		else if (temp == DIR_RIGHT)
+			Direction = PlayerDirection.Right;
+		else if (temp == DIR_DOWN)
+			Direction = PlayerDirection.Down;
+
+		Status = PlayerStatus.Walking;
+		Target = position;
+	}
+
     public void MoveTo(PlayerDirection direction)
     {
         if (Status == PlayerStatus.Walking)
@@ -119,19 +139,19 @@ public class Player : MonoBehaviour
 		switch (direction)
 		{
 			case PlayerDirection.Down:
-				_target = Position + DIR_DOWN;
+				Target = Position + DIR_DOWN;
 				break;
 
 			case PlayerDirection.Left:
-				_target = Position + DIR_LEFT;
+				Target = Position + DIR_LEFT;
                 break;
 
 			case PlayerDirection.Right:
-				_target = Position + DIR_RIGHT;
+				Target = Position + DIR_RIGHT;
                 break;
 
 			case PlayerDirection.Up:
-				_target = Position + DIR_UP;
+				Target = Position + DIR_UP;
                 break;
         }
 	}

@@ -6,7 +6,7 @@ package com.rzr.login.game;
  */
 public class PlayerCommand
 {
-    public static final String BASE_COMMAND = "Player";
+    public static final String BASE_COMMAND = "player";
     
     public enum PlayerEnum { START, INFOPLAYER, INFOGROUP, MOVE, SHOOT };
     

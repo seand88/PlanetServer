@@ -13,11 +13,23 @@ public class Shot : MonoBehaviour
 	{
 		string path = PrefabUtility.GetShotsPath("Fireball");
 	
-		GameObject go = (GameObject)Object.Instantiate(Resources.Load<GameObject>(path), player.Position + heading, Quaternion.identity);
+		GameObject go = (GameObject)Object.Instantiate(Resources.Load<GameObject>(path), player.Position, Quaternion.identity);
 		go.name = "Shot (Clone)";
 		Shot shot = go.GetComponent<Shot>();
 		shot.Setup(heading, player.gameObject.layer);
 
+		return shot;
+	}
+
+	public static Shot Create(Player player, Vector2 position, Vector2 heading)
+	{
+		string path = PrefabUtility.GetShotsPath("Fireball");
+		
+		GameObject go = (GameObject)Object.Instantiate(Resources.Load<GameObject>(path), position, Quaternion.identity);
+		go.name = "Shot (Clone)";
+		Shot shot = go.GetComponent<Shot>();
+		shot.Setup(heading, player.gameObject.layer);
+		
 		return shot;
 	}
 

@@ -27,15 +27,21 @@ public class PlayerRequest extends BasicClientRequestHandler
         try
         {
             PlayerEnum action = PlayerEnum.valueOf(requestId.toUpperCase());
-            
-            logger.debug("GOT REQUEST : " + action);
-            
+
             Game game = RoomHelper.getGame(this);
             
             switch (action)
             {
                 case START:
-                    game.start(command, sender, params);
+                    game.start(sender, params);
+                    break;
+                    
+                case MOVE:
+                    game.move(sender, params);
+                    break;
+                    
+                case SHOOT:
+                    game.shoot(sender, params);
                     break;
             }
         }
