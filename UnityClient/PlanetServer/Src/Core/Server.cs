@@ -102,7 +102,7 @@ namespace PS.Core
 
         private void DisconnectCallback(IAsyncResult ar)
         {
-            _dispatcher.DispatchEvent(MessageHelper.CreateMessage(MessageType.ConnectionLostEvent.Name));
+            _eventQueue.Enqueue(MessageHelper.CreateMessage(MessageType.ConnectionLostEvent.Name));
         }
 
         private void Receive(Socket client)
@@ -128,6 +128,13 @@ namespace PS.Core
                 Socket client = state.workSocket;
 
                 int bytesRead = client.EndReceive(ar);
+
+                if (!client.Connected || bytesRead == 0)
+                {
+                    _eventQueue.Enqueue(MessageHelper.CreateMessage(MessageType.ConnectionLostEvent.Name));
+
+                    return;
+                }                
 
                 if (bytesRead > 0)
                 {
@@ -160,7 +167,7 @@ namespace PS.Core
             }
             catch (Exception e)
             {
-                Console.WriteLine(e.ToString());
+                _eventQueue.Enqueue(MessageHelper.CreateMessage(MessageType.ConnectionLostEvent.Name));
             }
         }
 

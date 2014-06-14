@@ -22,6 +22,7 @@ public class LoginController : MonoBehaviour
 		_server = Utility.GetServer();
 
 		_server.ConnectionEvent += OnConnectionEvent;
+		_server.ConnectionLostEvent += OnConnectionLost;
 		_server.Connect(IP, Port);
 
 		_showLogin = false;
@@ -40,6 +41,11 @@ public class LoginController : MonoBehaviour
 			ShowStatus();
 	}
 
+	void OnDestroy()
+	{
+		_server.ConnectionLostEvent -= OnConnectionLost;
+	}
+
 	private void OnConnectionEvent(Dictionary<string, object> message)
 	{
 		_server.ConnectionEvent -= OnConnectionEvent;
@@ -52,6 +58,13 @@ public class LoginController : MonoBehaviour
 		}
 		else
 			_status += "\nError connecting to server: " + message["error"];
+	}
+
+	private void OnConnectionLost(Dictionary<string, object> message)
+	{
+		_showLogin = false;
+
+		_status += "\nConnection lost";
 	}
 
 	private void OnLoginEvent(Dictionary<string, object> message)

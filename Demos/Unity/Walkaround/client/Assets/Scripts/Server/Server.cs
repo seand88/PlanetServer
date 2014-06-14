@@ -12,6 +12,7 @@ public delegate void ServerEvent(Dictionary<string, object> message);
 public class Server : MonoBehaviour
 {
 	public event ServerEvent ConnectionEvent;
+	public event ServerEvent ConnectionLostEvent;
 	public event ServerEvent LoginEvent;
 	public event ServerEvent ExtensionEvent;
 
@@ -34,6 +35,7 @@ public class Server : MonoBehaviour
 	{
 		if (_server != null)
 		{
+			_server.EventDispatcher.ConnectionLostEvent -= OnConnectionLost;
 			_server.EventDispatcher.ExtensionEvent -= OnResponse;
 
 			_server.Send(new LogoutRequest());
@@ -45,6 +47,7 @@ public class Server : MonoBehaviour
 		_server = new PlanetServer();
 
 		_server.EventDispatcher.ConnectionEvent += OnConnection;
+		_server.EventDispatcher.ConnectionLostEvent += OnConnectionLost;
 
 		_server.Connect(ip, port);
 	}
@@ -69,6 +72,12 @@ public class Server : MonoBehaviour
 		
 		if (ConnectionEvent != null)
 			ConnectionEvent(new Dictionary<string, object>(){ { "success", e.Success }, { "error", e.Error } });
+	}
+
+	private void OnConnectionLost(ConnectionLostEvent e)
+	{
+		if (ConnectionLostEvent != null)
+			ConnectionLostEvent(new Dictionary<string, object>());
 	}
 
 	private void OnLogin(LoginEvent e)

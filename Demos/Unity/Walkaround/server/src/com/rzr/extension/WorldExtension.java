@@ -28,8 +28,8 @@ public class WorldExtension extends PSExtension
     @Override
     public void destroy()
     {
-       super.destroy();
-    
+        super.destroy();
+  
         removeEventHandler(PSEvents.LOGIN);
         removeEventHandler(PSEvents.LOGOUT);
         

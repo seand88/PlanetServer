@@ -19,9 +19,12 @@ public class GameController : MonoBehaviour
 	private Player _player;
 	private Dictionary<string, Player> _otherPlayers;
 
+	private bool _running;
+
 	void Start()
 	{
 		_server = Utility.GetServer();
+		_server.ConnectionLostEvent += OnConnectionLost;
 		_server.ExtensionEvent += OnResponse;
 
 		_cam = Camera.main.GetComponent<CamFollow>();
@@ -43,11 +46,13 @@ public class GameController : MonoBehaviour
 		psobj.SetIntArray(ServerConstants.PLAYER_POSITION, new List<int>() { x, y });
 
 		_server.SendRequest(new ExtensionRequest(PlayerCommand.GetCommand(PlayerCommand.PlayerEnum.Start), psobj));
+
+		_running = true;
 	}
 	
 	void Update()
 	{
-		if (_player.CanMove)
+		if (_running && _player.CanMove)
 		{
 			bool send = false;
 
@@ -115,7 +120,17 @@ public class GameController : MonoBehaviour
 
 	void OnDestroy()
 	{
+		_server.ConnectionLostEvent -= OnConnectionLost;
 		_server.ExtensionEvent -= OnResponse;
+	}
+
+	private void OnConnectionLost(Dictionary<string, object> message)
+	{
+		GameObject.DestroyImmediate(_player.gameObject);
+		foreach (string key in _otherPlayers.Keys)
+			GameObject.DestroyImmediate(_otherPlayers[key].gameObject);
+
+		_running = false;
 	}
 
 	private void OnResponse(Dictionary<string, object> message)

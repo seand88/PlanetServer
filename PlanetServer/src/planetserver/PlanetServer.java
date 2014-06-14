@@ -13,7 +13,6 @@ import org.apache.log4j.PropertyConfigurator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import planetserver.handler.BasicServerEventHandler;
 import planetserver.util.JarLoader;
 
 /**
@@ -35,6 +34,15 @@ public class PlanetServer
     {
         //load any properties here before we initialize!
         PropertyConfigurator.configure("./conf/log4j.properties");
+        
+        Runtime.getRuntime().addShutdownHook(new Thread()
+        {
+            @Override
+            public void run()
+            { 
+                coreServer.stop();
+            }
+        });
     }
 
     public static PlanetServer getInstance()
@@ -82,7 +90,6 @@ public class PlanetServer
 
     private void loadExtension(File extensionDir) throws Exception
     {
-
         File[] propertyFiles = extensionDir.listFiles(new FilenameFilter()
         {
             @Override
