@@ -4,7 +4,7 @@ package planetserver.util;
  *
  * @author Sean
  */
-public class PSConstants 
+public class PsConstants 
 {
     public static final String REQUEST_TYPE = "request_type";
     public static final String COMMAND = "command";    
@@ -16,4 +16,8 @@ public class PSConstants
     public static final String LOGIN_DATA = "login_data";
     
     public static final String EXTENSION_DATA = "extension_data";
+    
+    public static final String PM_USER = "pm_user";
+    public static final String PM_MSG = "pm_msg";
+    public static final String PM_DATA = "pm_data";
 }

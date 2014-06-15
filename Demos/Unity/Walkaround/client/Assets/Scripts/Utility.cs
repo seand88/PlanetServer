@@ -3,14 +3,14 @@ using System.Collections.Generic;
 
 public class Utility
 {
-	public static bool HasServer()
+	public static bool HasComponent(string name)
 	{
-		return GameObject.Find(Server.NAME) != null;
+		return GameObject.Find(name) != null;
 	}	
-	
-	public static Server GetServer() 
-	{ 
-		return (Server)GameObject.Find(Server.NAME).GetComponent<Server>(); 
+
+	public static T FindComponent<T>(string name) where T : MonoBehaviour
+	{
+		return (T)GameObject.Find(name).GetComponent<T>();
 	}
 
 	public static Vector2 ListToVector2(List<int> list)

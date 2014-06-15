@@ -5,6 +5,7 @@
         None = 0,
         Login,
         Logout,
-        Extension
+        Extension,
+        PublicMessage
     }
 }

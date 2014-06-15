@@ -8,7 +8,7 @@ package planetserver;
  *
  * @author Sean
  */
-public interface PSApi 
+public interface PsApi 
 {
     
     

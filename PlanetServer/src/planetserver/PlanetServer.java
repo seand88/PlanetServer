@@ -1,6 +1,6 @@
 package planetserver;
 
-import planetserver.core.PSExtension;
+import planetserver.core.PsExtension;
 import planetserver.core.CoreServer;
 import planetserver.room.RoomManager;
 import planetserver.session.SessionManager;
@@ -25,7 +25,7 @@ public class PlanetServer
     private static PlanetServer instance;
     private RoomManager roomManager;
     private SessionManager sessionManager;
-    private PSExtension extension;
+    private PsExtension extension;
     private Properties serverProperties;
     private Properties extensionProperties;
     private CoreServer coreServer;
@@ -110,7 +110,7 @@ public class PlanetServer
             try
             {
                 Class<?> cls = Class.forName(extensionClass);
-                extension = (PSExtension)cls.newInstance();
+                extension = (PsExtension)cls.newInstance();
                 extension.setRoomManager(roomManager);
                 extension.setProperties(extensionProperties);
             }

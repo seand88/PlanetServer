@@ -2,7 +2,7 @@
 {
 	public const string BASE_COMMAND = "player";
 
-	public enum PlayerEnum { Start, InfoPlayer, InfoGroup, Move, Shoot };
+	public enum PlayerEnum { Start, InfoPlayer, InfoGroup, Move, Shoot, Leave };
 
 	public static string GetCommand(PlayerEnum command) { return BASE_COMMAND + "." + command.ToString(); }
 }

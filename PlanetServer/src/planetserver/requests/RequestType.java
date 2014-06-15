@@ -3,7 +3,7 @@ package planetserver.requests;
 import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.Map;
-import planetserver.util.PSEvents;
+import planetserver.util.PsEvents;
 
 /**
  *
@@ -11,11 +11,11 @@ import planetserver.util.PSEvents;
  */
 public enum RequestType
 {
-    NONE(0, PSEvents.NONE),
-    LOGIN(1, PSEvents.LOGIN),
-    LOGOUT(2, PSEvents.LOGOUT),
-    EXTENSION(3, PSEvents.EXTENSION),
-    PUBLIC_MESSAGE(4, PSEvents.PUBLIC_MESSAGE);
+    NONE(0, PsEvents.NONE),
+    LOGIN(1, PsEvents.LOGIN),
+    LOGOUT(2, PsEvents.LOGOUT),
+    EXTENSION(3, PsEvents.EXTENSION),
+    PUBLICMESSAGE(4, PsEvents.PUBLICMESSAGE);
 
     private static final Map<Integer, RequestType> lookup = new HashMap<Integer, RequestType>();
 

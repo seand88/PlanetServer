@@ -1,6 +1,6 @@
 package planetserver.handler;
 
-import planetserver.core.PSExtension;
+import planetserver.core.PsExtension;
 import planetserver.handler.exceptions.PsException;
 import planetserver.network.PsObject;
 import planetserver.session.UserSession;
@@ -11,7 +11,7 @@ import planetserver.session.UserSession;
  */
 public class BasicServerEventHandler
 {
-    protected PSExtension _parentExtension;
+    protected PsExtension _parentExtension;
     
     /**
      * Handles verifying login
@@ -24,12 +24,12 @@ public class BasicServerEventHandler
 
     }
     
-    public PSExtension getParentExtension()
+    public PsExtension getParentExtension()
     {
         return _parentExtension;
     }
     
-    public void setParentExtension(PSExtension extension)
+    public void setParentExtension(PsExtension extension)
     {
         _parentExtension = extension;
     }

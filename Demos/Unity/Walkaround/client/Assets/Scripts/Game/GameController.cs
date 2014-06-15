@@ -8,11 +8,13 @@ using PS.Requests;
 
 public class GameController : MonoBehaviour
 {
+	public static string NAME = "GameController";
+
 	public LayerMask PlayerLayer;
 	public LayerMask OthersLayer;
 
 	private Server _server;
-
+	private ChatController _chat;
 	private MapData _map;
 
 	private CamFollow _cam;
@@ -23,10 +25,12 @@ public class GameController : MonoBehaviour
 
 	void Start()
 	{
-		_server = Utility.GetServer();
+		_server = Utility.FindComponent<Server>(Server.NAME);
 		_server.ConnectionLostEvent += OnConnectionLost;
 		_server.ExtensionEvent += OnResponse;
 
+		_chat = Utility.FindComponent<ChatController>(ChatController.NAME);
+	
 		_cam = Camera.main.GetComponent<CamFollow>();
 
 		LoadMap();
@@ -150,7 +154,7 @@ public class GameController : MonoBehaviour
 					break;
 
 				case PlayerCommand.PlayerEnum.InfoGroup:
-					AddPlayer(data);
+					AddPlayer(data, true);
 					break;
 
 				case PlayerCommand.PlayerEnum.Move:
@@ -160,7 +164,11 @@ public class GameController : MonoBehaviour
 				case PlayerCommand.PlayerEnum.Shoot:
 					PlayerShoot(data);
 					break;
-			}
+
+				case PlayerCommand.PlayerEnum.Leave:
+					PlayerLeave(data);
+					break;
+				}
 		}
 	}
 
@@ -169,10 +177,10 @@ public class GameController : MonoBehaviour
 		List<PsObject> players = psobj.GetPsObjectArray(ServerConstants.PLAYER_OBJ);
 
 		for (int i = 0; i < players.Count; ++i)
-			AddPlayer(players[i]);
+			AddPlayer(players[i], false);
 	}
 
-	private void AddPlayer(PsObject psobj)
+	private void AddPlayer(PsObject psobj, bool updateStatus)
 	{
 		string name = psobj.GetString(ServerConstants.PLAYER_NAME);
 		if (_otherPlayers.ContainsKey(name))
@@ -183,16 +191,18 @@ public class GameController : MonoBehaviour
 
 		Player player = CreateCharacter(type, Utility.ListToVector2(position), OthersLayer);
 		_otherPlayers.Add(name, player);
+
+		if (updateStatus)
+			_chat.UserAction(name, ChatAction.Enter);
 	}
 
 	private void PlayerMove(PsObject psobj)
 	{
 		string name = psobj.GetString(ServerConstants.PLAYER_NAME);
 
-		Player player = null;
-		_otherPlayers.TryGetValue(name, out player);
+		Player player = FindPlayer(name);
 		if (player == null)
-			return;
+            return;
 
 		List<int> position = psobj.GetIntArray(ServerConstants.PLAYER_POSITION);
 		player.MoveTo(Utility.ListToVector2(position));
@@ -202,14 +212,34 @@ public class GameController : MonoBehaviour
 	{
 		string name = psobj.GetString(ServerConstants.PLAYER_NAME);
 		
-		Player player = null;
-		_otherPlayers.TryGetValue(name, out player);
+		Player player = FindPlayer(name);
 		if (player == null)
-			return;
+            return;
 
 		List<int> position = psobj.GetIntArray(ServerConstants.PLAYER_POSITION);
 		List<int> heading = psobj.GetIntArray(ServerConstants.PLAYER_HEADING);
 		Shot.Create(player, Utility.ListToVector2(position), Utility.ListToVector2(heading));
+	}
+
+	private void PlayerLeave(PsObject psobj)
+	{
+		string name = psobj.GetString(ServerConstants.PLAYER_NAME);
+
+		Player player = FindPlayer(name);
+		if (player == null)
+			return;
+
+		_chat.UserAction(name, ChatAction.Leave);
+
+		GameObject.Destroy(player.gameObject);
+	}
+
+	private Player FindPlayer(string name)
+	{
+		Player player = null;
+		_otherPlayers.TryGetValue(name, out player);
+
+		return player;
 	}
 
 	private void LoadMap()

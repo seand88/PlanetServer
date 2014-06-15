@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Properties;
 import java.util.HashMap;
 
-import planetserver.PSApi;
+import planetserver.PsApi;
 import planetserver.network.PsObject;
 import planetserver.room.RoomManager;
 import planetserver.session.UserSession;
@@ -13,8 +13,8 @@ import planetserver.handler.BasicClientRequestHandler;
 import planetserver.handler.BasicServerEventHandler;
 import planetserver.handler.exceptions.PsException;
 import planetserver.requests.RequestType;
-import planetserver.util.PSConstants;
-import planetserver.util.PSEvents;
+import planetserver.util.PsConstants;
+import planetserver.util.PsEvents;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,17 +23,17 @@ import org.slf4j.LoggerFactory;
  *
  * @author Sean
  */
-public class PSExtension
+public class PsExtension
 {
-    private static final Logger logger = LoggerFactory.getLogger(PSExtension.class);
+    private static final Logger logger = LoggerFactory.getLogger(PsExtension.class);
     
     private Map<String, Class<?>> _eventHandlers;
     private Map<String, Class<?>> _requestHandlers;
     private RoomManager _roomManager;
-    private PSApi _psApi;
+    private PsApi _psApi;
     private Properties _properties;
 
-    public PSExtension()
+    public PsExtension()
     {
         _eventHandlers = new HashMap<String, Class<?>>();
         _requestHandlers = new HashMap<String, Class<?>>();
@@ -81,8 +81,7 @@ public class PSExtension
                     case LOGOUT:
                         logout(user);
                         break;
-                }
-                
+                }                
             }
             catch (Exception e)
             {
@@ -96,18 +95,18 @@ public class PSExtension
         try
         {
             PsObject loginData = new PsObject();
-            params.setPsObject(PSConstants.LOGIN_DATA, loginData);
+            params.setPsObject(PsConstants.LOGIN_DATA, loginData);
             
             event.setParentExtension(this);
             event.handleServerEvent(user, params);
       
             user.setAuthenticated(true);
-            user.getUserInfo().setUserid(params.getString(PSConstants.USER_NAME));
+            user.getUserInfo().setUserid(params.getString(PsConstants.USER_NAME));
             
             PsObject ret = new PsObject();
-            ret.setString(PSConstants.REQUEST_TYPE, PSEvents.LOGIN);
-            ret.setBoolean(PSConstants.LOGIN_SUCCESS, true);
-            ret.setPsObject(PSConstants.LOGIN_DATA, params);
+            ret.setString(PsConstants.REQUEST_TYPE, PsEvents.LOGIN);
+            ret.setBoolean(PsConstants.LOGIN_SUCCESS, true);
+            ret.setPsObject(PsConstants.LOGIN_DATA, params);
             
             user.send(ret);
             
@@ -123,10 +122,10 @@ public class PSExtension
         catch (PsException e)
         {
             PsObject ret = new PsObject();
-            ret.setString(PSConstants.REQUEST_TYPE, PSEvents.LOGIN);
-            ret.setBoolean(PSConstants.LOGIN_SUCCESS, false);            
-            ret.setString(PSConstants.LOGIN_MSG, e.getMessage());
-            ret.setPsObject(PSConstants.LOGIN_DATA, e.getPsObject());
+            ret.setString(PsConstants.REQUEST_TYPE, PsEvents.LOGIN);
+            ret.setBoolean(PsConstants.LOGIN_SUCCESS, false);            
+            ret.setString(PsConstants.LOGIN_MSG, e.getMessage());
+            ret.setPsObject(PsConstants.LOGIN_DATA, e.getPsObject());
             
             user.send(ret);
         }
@@ -136,13 +135,6 @@ public class PSExtension
     {
         user.setAuthenticated(false);
 
-        //remove the user from any rooms they are in!
-        if (user.getCurrentRoom().length() > 1)
-        {
-            logger.debug("REMOVING USER FROM ROOM WITH ID: " + user.getId());
-            _roomManager.getRoom(user.getCurrentRoom()).removeUserFromRoom(user);
-        }
-        
         // if there is a logout handler registered then process it
         Class<?> eventClass = _eventHandlers.get(RequestType.LOGOUT.getName());
         
@@ -160,6 +152,13 @@ public class PSExtension
                 e.printStackTrace();
             }
         }
+        
+        //remove the user from any rooms they are in!
+        if (user.getCurrentRoom().length() > 1)
+        {
+            logger.debug("REMOVING USER FROM ROOM WITH ID: " + user.getId());
+            _roomManager.getRoom(user.getCurrentRoom()).removeUserFromRoom(user);
+        }
     }
    
     /**
@@ -172,7 +171,7 @@ public class PSExtension
      */
     public void handleClientRequest(UserSession user, PsObject params)
     {
-        String command = params.getString(PSConstants.COMMAND);
+        String command = params.getString(PsConstants.COMMAND);
         String baseCommand = getBaseCommand(command);
         
         //first check if the command is registered!!!
@@ -209,9 +208,9 @@ public class PSExtension
     public void send(String cmdName, PsObject params, UserSession recipient)
     {
         PsObject psobj = new PsObject();
-        psobj.setString(PSConstants.REQUEST_TYPE, PSEvents.EXTENSION);
-        psobj.setString(PSConstants.COMMAND, cmdName);
-        psobj.setPsObject(PSConstants.EXTENSION_DATA, params);
+        psobj.setString(PsConstants.REQUEST_TYPE, PsEvents.EXTENSION);
+        psobj.setString(PsConstants.COMMAND, cmdName);
+        psobj.setPsObject(PsConstants.EXTENSION_DATA, params);
         
         recipient.send(psobj);
     }
@@ -219,9 +218,9 @@ public class PSExtension
     public void send(String cmdName, PsObject params, List<UserSession> recipientList)
     {
         PsObject psobj = new PsObject();
-        psobj.setString(PSConstants.REQUEST_TYPE, PSEvents.EXTENSION);
-        psobj.setString(PSConstants.COMMAND, cmdName);
-        psobj.setPsObject(PSConstants.EXTENSION_DATA, params);
+        psobj.setString(PsConstants.REQUEST_TYPE, PsEvents.EXTENSION);
+        psobj.setString(PsConstants.COMMAND, cmdName);
+        psobj.setPsObject(PsConstants.EXTENSION_DATA, params);
        
         for (UserSession recipient : recipientList)
             recipient.send(psobj);
@@ -254,7 +253,7 @@ public class PSExtension
     public void init()
     {
         // make sure there is always at least an empty login handler
-        addEventHandler(PSEvents.LOGIN, BaseLoginHandler.class); 
+        addEventHandler(PsEvents.LOGIN, BaseLoginHandler.class); 
     }
 
     public RoomManager getRoomManager()

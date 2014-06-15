@@ -27,7 +27,7 @@ public class CoreServer
     private static final Logger logger = LoggerFactory.getLogger(CoreServer.class);
     static final ChannelGroup allChannels = new DefaultChannelGroup("Planet-Server");
     private Properties properties;
-    private PSExtension extension;
+    private PsExtension extension;
     private SessionManager sessionManager;
     private RoomManager roomManager;
     private ChannelFactory factory;
@@ -37,7 +37,7 @@ public class CoreServer
     private int port;
     public int executorThreads;
 
-    public CoreServer(Properties properties, PSExtension commandProcessor, SessionManager sessionManager, RoomManager roomManager)
+    public CoreServer(Properties properties, PsExtension commandProcessor, SessionManager sessionManager, RoomManager roomManager)
     {
         this.roomManager = roomManager;
         this.properties = properties;

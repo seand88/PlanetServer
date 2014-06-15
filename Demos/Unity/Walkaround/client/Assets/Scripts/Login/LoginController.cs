@@ -19,7 +19,7 @@ public class LoginController : MonoBehaviour
 
 	void Start()
 	{
-		_server = Utility.GetServer();
+		_server = Utility.FindComponent<Server>(Server.NAME);
 
 		_server.ConnectionEvent += OnConnectionEvent;
 		_server.ConnectionLostEvent += OnConnectionLost;

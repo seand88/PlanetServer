@@ -134,23 +134,23 @@ namespace PS.Core
                     _eventQueue.Enqueue(MessageHelper.CreateMessage(MessageType.ConnectionLostEvent.Name));
 
                     return;
-                }                
+                }
 
                 if (bytesRead > 0)
                 {
                     state.sb.Append(Encoding.ASCII.GetString(state.buffer, 0, bytesRead));
-                    
+
                     client.BeginReceive(state.buffer, 0, StateObject.BufferSize, 0, new AsyncCallback(ReceiveCallback), state);
                     if (state.buffer[bytesRead - 1] == 0)
                     {
                         object obj = JsonReader.Deserialize(state.sb.ToString());
-                        
+
                         if (obj is IDictionary)
                         {
                             Dictionary<string, object> dict = (Dictionary<string, object>)obj;
                             Dictionary<string, object> value = (Dictionary<string, object>)dict[PsRequest.REQUEST_TYPE];
                             string request = Convert.ToString(value["v"]) + "_event";
-
+                           
                             _eventQueue.Enqueue(MessageHelper.CreateMessage(request, dict));
                         }
 
@@ -165,10 +165,15 @@ namespace PS.Core
                     }
                 }
             }
+            // server is trying to send a response the client doesn't know about
+            catch (KeyNotFoundException e)
+            {
+                
+            }
             catch (Exception e)
             {
                 _eventQueue.Enqueue(MessageHelper.CreateMessage(MessageType.ConnectionLostEvent.Name));
-            }
+            }            
         }
 
         public void Send(PsRequest request)

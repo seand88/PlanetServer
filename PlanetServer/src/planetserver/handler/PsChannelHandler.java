@@ -8,13 +8,13 @@ import org.jboss.netty.channel.ExceptionEvent;
 import org.jboss.netty.channel.MessageEvent;
 import org.jboss.netty.channel.SimpleChannelHandler;
 
-import planetserver.core.PSExtension;
+import planetserver.core.PsExtension;
 import planetserver.network.PsObject;
 import planetserver.requests.RequestType;
 import planetserver.room.RoomManager;
 import planetserver.session.SessionManager;
 import planetserver.session.UserSession;
-import planetserver.util.PSConstants;
+import planetserver.util.PsConstants;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,51 +22,52 @@ import org.slf4j.LoggerFactory;
 public class PsChannelHandler extends SimpleChannelHandler 
 {
     private static final Logger logger = LoggerFactory.getLogger(PsChannelHandler.class);
-    private RoomManager roomManager;
-    private SessionManager sessionManager;
-    private PSExtension extension;
+    
+    private RoomManager _roomManager;
+    private SessionManager _sessionManager;
+    private PsExtension _extension;
 
-    public PsChannelHandler(PSExtension extension, SessionManager sessionManager, RoomManager roomManager)
+    public PsChannelHandler(PsExtension extension, SessionManager sessionManager, RoomManager roomManager)
     {
-        this.extension = extension;
-        this.roomManager = roomManager;
-        this.sessionManager = sessionManager;
+        _extension = extension;
+        _roomManager = roomManager;
+        _sessionManager = sessionManager;
     }
 
     @Override
     public void channelConnected(ChannelHandlerContext ctx, ChannelStateEvent e)
     {
         UserSession session = new UserSession(e.getChannel());
-        this.sessionManager.registerSession(session);
-        logger.debug("Session Added, Total Sessions: " + sessionManager.getNumberOfSessions());
+        _sessionManager.registerSession(session);
+        logger.debug("Session Added, Total Sessions: " + _sessionManager.getNumberOfSessions());
     }
 
     @Override
     public void channelDisconnected(ChannelHandlerContext ctx, ChannelStateEvent e)
     {
-        UserSession session = this.sessionManager.getSession(e.getChannel());
+        UserSession session = _sessionManager.getSession(e.getChannel());
         
         if (session != null)
         {
-            extension.logout(session);
+            _extension.logout(session);
 
             //disconnect the session!
-            this.sessionManager.unregisterSession(session);
-            logger.debug("Session Removed, Total Sessions: " + sessionManager.getNumberOfSessions());
+            _sessionManager.unregisterSession(session);
+            logger.debug("Session Removed, Total Sessions: " + _sessionManager.getNumberOfSessions());
         }
     }
 
     @Override
     public void channelClosed(ChannelHandlerContext ctx, ChannelStateEvent e)
     { 
-        UserSession session = this.sessionManager.getSession(e.getChannel());
+        UserSession session = _sessionManager.getSession(e.getChannel());
         
         if (session != null)
         {
-            extension.logout(session);
+            _extension.logout(session);
 
-            this.sessionManager.unregisterSession(session);
-            logger.debug("Channel Closed, Total Sessions: " + sessionManager.getNumberOfSessions());
+            _sessionManager.unregisterSession(session);
+            logger.debug("Channel Closed, Total Sessions: " + _sessionManager.getNumberOfSessions());
         }
     }
 
@@ -76,7 +77,7 @@ public class PsChannelHandler extends SimpleChannelHandler
         String msg = (String)e.getMessage();
         String policyRequest = "<policy-file-request/>";
 
-        UserSession session = sessionManager.getSession(e.getChannel());
+        UserSession session = _sessionManager.getSession(e.getChannel());
 
         if (msg.equalsIgnoreCase(policyRequest.trim()))
         {
@@ -88,20 +89,20 @@ public class PsChannelHandler extends SimpleChannelHandler
             PsObject messageIn = new PsObject();
             messageIn.fromJsonObject(jsonObject);
 
-            RequestType request = RequestType.get(messageIn.getInteger(PSConstants.REQUEST_TYPE));
+            RequestType request = RequestType.get(messageIn.getInteger(PsConstants.REQUEST_TYPE));
      
             switch (request)
             {
                 case EXTENSION:
-                    extension.handleClientRequest(session, messageIn);
+                    _extension.handleClientRequest(session, messageIn);
                     break;
                     
-                case PUBLIC_MESSAGE:
+                case PUBLICMESSAGE:
                     sendPublicMessage(session, messageIn);
                     break;
                     
                 default:
-                    extension.handleEventRequest(request, session, messageIn);
+                    _extension.handleEventRequest(request, session, messageIn);
             }  
         }
         //since this should be the last handler, no need to worry about other handlers upstream
@@ -110,13 +111,16 @@ public class PsChannelHandler extends SimpleChannelHandler
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, ExceptionEvent e)
-    {
+    { 
         e.getCause().printStackTrace();
     }
     
     private void sendPublicMessage(UserSession user, PsObject obj)
     {
-        roomManager.sendMessageToCurrentRoom(user, obj);
+        if (user.isAuthenticated())
+        {
+            _roomManager.sendMessageToCurrentRoom(user, obj);
+        }
     }
     
     private void handlePolicyRequest(UserSession user) 

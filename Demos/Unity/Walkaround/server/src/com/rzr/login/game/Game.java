@@ -49,6 +49,20 @@ public class Game
     public void userLeft(UserSession session)
     {
         _users.remove(session.getId());
+      
+        // user wouldn't be in a room if they haven't logged in yet
+        if (session.getCurrentRoom().length() > 1)
+        {
+            List<UserSession> users = UserHelper.getRecipientsList(_extension.getRoomManager().getRoom(session.getCurrentRoom()), session);
+
+            if (users.size() > 0)
+            {
+                PsObject psobj = new PsObject();
+                psobj.setString(Field.PlayerName.getCode(), session.getUserInfo().getUserid());
+
+                _extension.send(PlayerCommand.getCommand(PlayerCommand.PlayerEnum.LEAVE), psobj, users);
+            }
+        }
     }
     
     public void start(UserSession session, PsObject params)

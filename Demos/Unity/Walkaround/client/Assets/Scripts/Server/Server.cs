@@ -15,6 +15,7 @@ public class Server : MonoBehaviour
 	public event ServerEvent ConnectionLostEvent;
 	public event ServerEvent LoginEvent;
 	public event ServerEvent ExtensionEvent;
+	public event ServerEvent PublicMessageEvent;
 
 	public static string NAME = "PSServer";
 
@@ -37,8 +38,10 @@ public class Server : MonoBehaviour
 		{
 			_server.EventDispatcher.ConnectionLostEvent -= OnConnectionLost;
 			_server.EventDispatcher.ExtensionEvent -= OnResponse;
+			_server.EventDispatcher.PublicMessageEvent -= OnPublicMessage;
 
-			_server.Send(new LogoutRequest());
+			_server.Disconnect();
+			_server = null;
 		}
 	}
 
@@ -48,6 +51,7 @@ public class Server : MonoBehaviour
 
 		_server.EventDispatcher.ConnectionEvent += OnConnection;
 		_server.EventDispatcher.ConnectionLostEvent += OnConnectionLost;
+		_server.EventDispatcher.PublicMessageEvent += OnPublicMessage;
 
 		_server.Connect(ip, port);
 	}
@@ -94,5 +98,11 @@ public class Server : MonoBehaviour
 	{
 		if (ExtensionEvent != null)
 			ExtensionEvent(new Dictionary<string, object>() { { "command", e.Command }, { "subcommand", e.SubCommand }, { "data", e.Data } });
+	}
+
+	private void OnPublicMessage(PublicMessageEvent e)
+	{
+		if (PublicMessageEvent != null)
+			PublicMessageEvent(new Dictionary<string, object>() { { "username", e.User }, { "message", e.Message } });
 	}
 }

@@ -1,7 +1,7 @@
 package com.rzr.extension;
 
-import planetserver.core.PSExtension;
-import planetserver.util.PSEvents;
+import planetserver.core.PsExtension;
+import planetserver.util.PsEvents;
 
 import com.rzr.handler.LoginHandler;
 import com.rzr.handler.LogoutHandler;
@@ -10,7 +10,7 @@ import com.rzr.login.game.PlayerCommand;
 import com.rzr.request.PlayerRequest;
 import com.rzr.service.ServiceManager;
 
-public class WorldExtension extends PSExtension
+public class WorldExtension extends PsExtension
 {
     private Game _game;
     
@@ -30,8 +30,8 @@ public class WorldExtension extends PSExtension
     {
         super.destroy();
   
-        removeEventHandler(PSEvents.LOGIN);
-        removeEventHandler(PSEvents.LOGOUT);
+        removeEventHandler(PsEvents.LOGIN);
+        removeEventHandler(PsEvents.LOGOUT);
         
         removeRequestHandler(PlayerCommand.BASE_COMMAND);
     }
@@ -43,8 +43,8 @@ public class WorldExtension extends PSExtension
  
     public void registerHandlers()
     {
-        addEventHandler(PSEvents.LOGIN, LoginHandler.class);
-        addEventHandler(PSEvents.LOGOUT, LogoutHandler.class);
+        addEventHandler(PsEvents.LOGIN, LoginHandler.class);
+        addEventHandler(PsEvents.LOGOUT, LogoutHandler.class);
         
         addRequestHandler(PlayerCommand.BASE_COMMAND, PlayerRequest.class);
     }

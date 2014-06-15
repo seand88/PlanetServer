@@ -1,13 +1,13 @@
 package com.rzr.service;
 
-import planetserver.core.PSExtension;
+import planetserver.core.PsExtension;
 
 /**
  * Holds references to all the services
  */
 public class ServiceManager
 {    
-    private PSExtension _parentExtension;
+    private PsExtension _parentExtension;
 
     private static ServiceManager _instance;
     
@@ -33,7 +33,7 @@ public class ServiceManager
      * Called to initialize this class before its used!!
      * @param ext 
      */
-    public void initialize(PSExtension ext)
+    public void initialize(PsExtension ext)
     {
         _parentExtension = ext;
         registerServices(this);
@@ -44,6 +44,6 @@ public class ServiceManager
 
     } 
     
-    public PSExtension getParentExtension() { return _parentExtension; }
-    public void setParentExtension(PSExtension value) { _parentExtension = value; } 
+    public PsExtension getParentExtension() { return _parentExtension; }
+    public void setParentExtension(PsExtension value) { _parentExtension = value; } 
 }
