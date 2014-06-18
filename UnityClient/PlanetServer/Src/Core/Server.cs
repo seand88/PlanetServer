@@ -18,11 +18,12 @@ namespace PS.Core
     {
         public string Host { get; private set; }
         public int Port { get; private set; }
+        public bool QueueMessages { get; set; }
 
         private Socket _socket;
 
         private EventDispatcher _dispatcher;
-
+        
         private String response = String.Empty;
 
         byte[] buffer = new byte[256];
@@ -32,6 +33,18 @@ namespace PS.Core
 
         public PlanetServer()
         {
+            Setup(true);            
+        }
+
+        public PlanetServer(bool queueMessages)
+        {
+            Setup(queueMessages);
+        }
+
+        private void Setup(bool queueMessages)
+        {
+            QueueMessages = queueMessages;
+
             _eventQueue = new Queue<PsEvent>();
 
             _dispatcher = new EventDispatcher();
@@ -59,7 +72,7 @@ namespace PS.Core
                 dict["success"] = false;
                 dict["error"] = error;
 
-                _eventQueue.Enqueue(MessageHelper.CreateMessage(MessageType.ConnectionEvent.Name, dict));
+                SendMessage(MessageHelper.CreateMessage(MessageType.ConnectionEvent.Name, dict));
             }
         }
 
@@ -81,7 +94,7 @@ namespace PS.Core
                 Dictionary<string, object> dict = new Dictionary<string, object>();
                 dict["success"] = true;
 
-                _eventQueue.Enqueue(MessageHelper.CreateMessage(MessageType.ConnectionEvent.Name, dict));
+                SendMessage(MessageHelper.CreateMessage(MessageType.ConnectionEvent.Name, dict));
             }
             catch (Exception e)
             {
@@ -91,7 +104,7 @@ namespace PS.Core
                 dict["success"] = false;
                 dict["error"] = error;
 
-                _eventQueue.Enqueue(MessageHelper.CreateMessage(MessageType.ConnectionEvent.Name, dict));
+                SendMessage(MessageHelper.CreateMessage(MessageType.ConnectionEvent.Name, dict));
             }
         }
 
@@ -102,7 +115,7 @@ namespace PS.Core
 
         private void DisconnectCallback(IAsyncResult ar)
         {
-            _eventQueue.Enqueue(MessageHelper.CreateMessage(MessageType.ConnectionLostEvent.Name));
+            SendMessage(MessageHelper.CreateMessage(MessageType.ConnectionLostEvent.Name));
         }
 
         private void Receive(Socket client)
@@ -131,7 +144,7 @@ namespace PS.Core
 
                 if (!client.Connected || bytesRead == 0)
                 {
-                    _eventQueue.Enqueue(MessageHelper.CreateMessage(MessageType.ConnectionLostEvent.Name));
+                    SendMessage(MessageHelper.CreateMessage(MessageType.ConnectionLostEvent.Name));
 
                     return;
                 }
@@ -151,7 +164,7 @@ namespace PS.Core
                             Dictionary<string, object> value = (Dictionary<string, object>)dict[PsRequest.REQUEST_TYPE];
                             string request = Convert.ToString(value["v"]) + "_event";
                            
-                            _eventQueue.Enqueue(MessageHelper.CreateMessage(request, dict));
+                            SendMessage(MessageHelper.CreateMessage(request, dict));
                         }
 
                         state.sb.Length = 0;
@@ -172,7 +185,7 @@ namespace PS.Core
             }
             catch (Exception e)
             {
-                _eventQueue.Enqueue(MessageHelper.CreateMessage(MessageType.ConnectionLostEvent.Name));
+                SendMessage(MessageHelper.CreateMessage(MessageType.ConnectionLostEvent.Name));
             }            
         }
 
@@ -198,6 +211,14 @@ namespace PS.Core
             {
                 Console.WriteLine(e.ToString());
             }
+        }
+
+        private void SendMessage(PsEvent message)
+        {
+            if (QueueMessages)
+                _eventQueue.Enqueue(message);
+            else
+                _dispatcher.DispatchEvent(message);
         }
 
         public void DispatchEvents()
