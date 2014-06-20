@@ -32,7 +32,7 @@ public class Player : MonoBehaviour
 	public bool CanShoot { get; private set; }
 	public bool CanMove { get { return Status == PlayerStatus.Standing; } } 
 
-	void Start()
+	void Awake()
 	{
 		_renderer = renderer as SpriteRenderer;
 

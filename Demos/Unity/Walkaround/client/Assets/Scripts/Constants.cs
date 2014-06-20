@@ -5,4 +5,6 @@
 
 	public static int TILE_WIDTH = 32;
 	public static int TILE_HEIGHT = 32;
+
+	public static string PLAYER_TYPE = "player_type";
 }

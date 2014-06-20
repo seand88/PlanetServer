@@ -35,7 +35,7 @@ public class GameController : MonoBehaviour
 
 		LoadMap();
 
-		int type = Random.Range(0, 3);
+		int type = PlayerPrefs.GetInt(Constants.PLAYER_TYPE, 0);;
 		int x = Random.Range(5, 20);
 		int y = Random.Range(0, -10);
 
@@ -168,7 +168,7 @@ public class GameController : MonoBehaviour
 				case PlayerCommand.PlayerEnum.Leave:
 					PlayerLeave(data);
 					break;
-				}
+			}
 		}
 	}
 
@@ -190,6 +190,7 @@ public class GameController : MonoBehaviour
 		List<int> position = psobj.GetIntArray(ServerConstants.PLAYER_POSITION);
 
 		Player player = CreateCharacter(type, Utility.ListToVector2(position), OthersLayer);
+		player.Face(PlayerDirection.Down);
 		_otherPlayers.Add(name, player);
 
 		if (updateStatus)
@@ -267,7 +268,10 @@ public class GameController : MonoBehaviour
 		GameObject go = (GameObject)Object.Instantiate(Resources.Load<GameObject>(path), position, Quaternion.identity);
 		go.layer = (int)Mathf.Log(PlayerLayer.value, 2);
 
-		return go.GetComponent<Player>();
+		Player player = go.GetComponent<Player>();
+		player.Face(PlayerDirection.Down);
+
+		return player;
 	}
 
 	private Player CreateCharacter(int index, Vector2 position, LayerMask layer)
