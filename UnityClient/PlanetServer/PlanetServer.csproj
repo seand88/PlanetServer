@@ -21,6 +21,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\PlanetServer.xml</DocumentationFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -29,6 +30,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\PlanetServer.xml</DocumentationFile>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -37,8 +39,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Src\Core\EventDispatcher.cs" />
-    <Compile Include="Src\Core\PsEvent.cs" />
-    <Compile Include="Src\Core\EventListenerDelegate.cs" />
+    <Compile Include="Src\Core\MessageHelper.cs" />
+    <Compile Include="Src\Events\ConnectionEvent.cs" />
+    <Compile Include="Src\Events\ConnectionLostEvent.cs" />
+    <Compile Include="Src\Events\PublicMessageEvent.cs" />
+    <Compile Include="Src\Events\ExtensionEvent.cs" />
+    <Compile Include="Src\Events\LogoutEvent.cs" />
+    <Compile Include="Src\Events\LoginEvent.cs" />
+    <Compile Include="Src\Events\MessageType.cs" />
+    <Compile Include="Src\Events\PsEvent.cs" />
+    <Compile Include="Src\Core\EventDelegate.cs" />
     <Compile Include="Src\Data\PsArray.cs" />
     <Compile Include="Src\JsonFx.Json\About.cs" />
     <Compile Include="Src\JsonFx.Json\DataReaderProvider.cs" />
@@ -71,7 +81,9 @@
     <Compile Include="Src\Data\PsObject.cs" />
     <Compile Include="Src\PsType.cs" />
     <Compile Include="Src\Requests\LoginRequest.cs" />
+    <Compile Include="Src\Requests\LogoutRequest.cs" />
     <Compile Include="Src\Requests\PsRequest.cs" />
+    <Compile Include="Src\Requests\PublicMessageRequest.cs" />
     <Compile Include="Src\Requests\RequestType.cs" />
     <Compile Include="Src\Rooms\Room.cs" />
     <Compile Include="Src\Core\StateObject.cs" />

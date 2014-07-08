@@ -6,8 +6,12 @@ using PS.Data;
 using PS.Events;
 using PS.Requests;
 
+/// <summary>
+/// Handles main game functionality.
+/// </summary>
 public class GameController : MonoBehaviour
 {
+	// used to find the game controller in the sea of gameobjects
 	public static string NAME = "GameController";
 
 	public LayerMask PlayerLayer;
@@ -25,6 +29,7 @@ public class GameController : MonoBehaviour
 
 	void Start()
 	{
+		// find the server so that we can interact with it
 		_server = Utility.FindComponent<Server>(Server.NAME);
 		_server.ConnectionLostEvent += OnConnectionLost;
 		_server.ExtensionEvent += OnResponse;
@@ -35,6 +40,7 @@ public class GameController : MonoBehaviour
 
 		LoadMap();
 
+		// pull player image from prefs and randomly place them on the top of the map
 		int type = PlayerPrefs.GetInt(Constants.PLAYER_TYPE, 0);;
 		int x = Random.Range(5, 20);
 		int y = Random.Range(0, -10);
@@ -45,6 +51,7 @@ public class GameController : MonoBehaviour
 
 		_otherPlayers = new Dictionary<string, Player>();
 
+		// let the server (and other players) this player has just joined the game
 		PsObject psobj = new PsObject();
 		psobj.SetInt(ServerConstants.PLAYER_TYPE, type);
 		psobj.SetIntArray(ServerConstants.PLAYER_POSITION, new List<int>() { x, y });
@@ -60,6 +67,7 @@ public class GameController : MonoBehaviour
 		{
 			bool send = false;
 
+			// check if the player can move in the direction requested.  if not make them face that direction
 			if (Input.GetKey(KeyCode.DownArrow))
 			{
 				if (_map.CanMove(_player.Position + Player.DIR_DOWN))
@@ -101,6 +109,7 @@ public class GameController : MonoBehaviour
 					_player.Face(PlayerDirection.Up);
 			}
 
+			// let the server know this player is moving to a new map cell
 			if (send)
 			{
 				PsObject psobj = new PsObject();
@@ -110,10 +119,12 @@ public class GameController : MonoBehaviour
 			}
 		}
 
+		// shoot a fireball
 		if (Input.GetKey(KeyCode.Space) && _player.CanShoot)
 		{
 			_player.Shoot();
 
+			// let the server know this player shot something
 			PsObject psobj = new PsObject();
 			psobj.SetIntArray(ServerConstants.PLAYER_POSITION, Utility.Vector2ToList(_player.Target));
 			psobj.SetIntArray(ServerConstants.PLAYER_HEADING, Utility.Vector2ToList(_player.GetDirectionVector()));
@@ -124,12 +135,14 @@ public class GameController : MonoBehaviour
 
 	void OnDestroy()
 	{
+		// remove the listeners so the controller can get garbage collected away
 		_server.ConnectionLostEvent -= OnConnectionLost;
 		_server.ExtensionEvent -= OnResponse;
 	}
 
 	private void OnConnectionLost(Dictionary<string, object> message)
 	{
+		// clear all players from screen
 		GameObject.DestroyImmediate(_player.gameObject);
 		foreach (string key in _otherPlayers.Keys)
 			GameObject.DestroyImmediate(_otherPlayers[key].gameObject);
@@ -137,14 +150,17 @@ public class GameController : MonoBehaviour
 		_running = false;
 	}
 
+	// got some kind of message from the server
 	private void OnResponse(Dictionary<string, object> message)
 	{
 		string command = (string)message["command"];
 		string subCommand = (string)message["subcommand"];
 		PsObject data = (PsObject)message["data"];
 	
+		// if the message is a player command
 		if (command == PlayerCommand.BASE_COMMAND)
 		{
+			// get the subcommand 
 			PlayerCommand.PlayerEnum action = (PlayerCommand.PlayerEnum)System.Enum.Parse(typeof(PlayerCommand.PlayerEnum), subCommand, true);
 
 			switch (action)
@@ -172,6 +188,7 @@ public class GameController : MonoBehaviour
 		}
 	}
 
+	// a group of players to add.  generally when a player first logs in and gets all the currently connected players
 	private void AddPlayers(PsObject psobj)
 	{
 		List<PsObject> players = psobj.GetPsObjectArray(ServerConstants.PLAYER_OBJ);
@@ -180,6 +197,7 @@ public class GameController : MonoBehaviour
 			AddPlayer(players[i], false);
 	}
 
+	// add a single player.  generally when somebody new joins after the game has started
 	private void AddPlayer(PsObject psobj, bool updateStatus)
 	{
 		string name = psobj.GetString(ServerConstants.PLAYER_NAME);
@@ -193,10 +211,12 @@ public class GameController : MonoBehaviour
 		player.Face(PlayerDirection.Down);
 		_otherPlayers.Add(name, player);
 
+		// update chat a player entered
 		if (updateStatus)
 			_chat.UserAction(name, ChatAction.Enter);
 	}
 
+	// another player moved
 	private void PlayerMove(PsObject psobj)
 	{
 		string name = psobj.GetString(ServerConstants.PLAYER_NAME);
@@ -209,6 +229,7 @@ public class GameController : MonoBehaviour
 		player.MoveTo(Utility.ListToVector2(position));
 	}
 
+	// another player shot
 	private void PlayerShoot(PsObject psobj)
 	{
 		string name = psobj.GetString(ServerConstants.PLAYER_NAME);
@@ -222,6 +243,7 @@ public class GameController : MonoBehaviour
 		Shot.Create(player, Utility.ListToVector2(position), Utility.ListToVector2(heading));
 	}
 
+	// player left the game
 	private void PlayerLeave(PsObject psobj)
 	{
 		string name = psobj.GetString(ServerConstants.PLAYER_NAME);
@@ -230,6 +252,7 @@ public class GameController : MonoBehaviour
 		if (player == null)
 			return;
 
+		// update chat a player left
 		_chat.UserAction(name, ChatAction.Leave);
 
 		GameObject.Destroy(player.gameObject);
@@ -243,6 +266,7 @@ public class GameController : MonoBehaviour
 		return player;
 	}
 
+	// load a map and create all the tiles.  creating a gameobject for each tile which is not very efficient
 	private void LoadMap()
 	{
 		_map = new MapData();
@@ -261,6 +285,7 @@ public class GameController : MonoBehaviour
 		_cam.Map = _map;
 	}
 
+	// create you
 	private Player CreateCharacter(int index, Vector2 position)
 	{
 		string path = PrefabUtility.GetCharactersPath("char" + index.ToString());
@@ -274,6 +299,7 @@ public class GameController : MonoBehaviour
 		return player;
 	}
 
+	// create another player
 	private Player CreateCharacter(int index, Vector2 position, LayerMask layer)
 	{
 		string path = PrefabUtility.GetCharactersPath("char" + index.ToString());

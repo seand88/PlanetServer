@@ -14,10 +14,24 @@ using PS.Requests;
 
 namespace PS.Core
 {
+    /// <summary>
+    /// PlanetServer is a multithreaded TCP based socket server.  The server is based around .NET 2.0 for the widest possible compatiblity.
+    /// Designed with Unity in mind, it will work with any C# based client. 
+    /// </summary>
     public class PlanetServer
     {
+        /// <summary>
+        /// The host machine the server will try and connect to.
+        /// </summary>
         public string Host { get; private set; }
+        /// <summary>
+        /// The IP on the host machine.
+        /// </summary>
         public int Port { get; private set; }
+        /// <summary>
+        /// Flag to determine if messages will be dispatached as soon as they are recieved.
+        /// Or queued up to be dispatched as a group.
+        /// </summary>
         public bool QueueMessages { get; set; }
 
         private Socket _socket;
@@ -26,21 +40,31 @@ namespace PS.Core
         
         private String response = String.Empty;
 
-        byte[] buffer = new byte[256];
-
         private object _lock = new object();
         private Queue<PsEvent> _eventQueue;
 
+        /// <summary>
+        /// Creates an instance of the PlanetServer class.
+        /// By default, message queuing is turned on.
+        /// </summary>
         public PlanetServer()
         {
             Setup(true);            
         }
 
+        /// <summary>
+        /// Creates an instance of the PlanetServer class.
+        /// </summary>
+        /// <param name="queueMessages">Flag to determine if messages will be dispatached as soon as they are recieved.  Or queued up to be dispatched as a group.</param>
         public PlanetServer(bool queueMessages)
         {
             Setup(queueMessages);
         }
 
+        /// <summary>
+        /// Create resources for operation
+        /// </summary>
+        /// <param name="queueMessages">Flag to determine if messages will be dispatached as soon as they are recieved.  Or queued up to be dispatched as a group.</param>
         private void Setup(bool queueMessages)
         {
             QueueMessages = queueMessages;
@@ -50,6 +74,11 @@ namespace PS.Core
             _dispatcher = new EventDispatcher();
         }
 
+        /// <summary>
+        /// Attempt a connection to the server.
+        /// </summary>
+        /// <param name="host">The host machine the server will try and connect to.</param>
+        /// <param name="port">The IP on the host machine.</param>
         public void Connect(string host, int port)
         {
             try
@@ -76,6 +105,11 @@ namespace PS.Core
             }
         }
 
+        /// <summary>
+        /// Callback for a connection attempt.
+        /// Will dispatch a connection event with the success of the operation.
+        /// </summary>
+        /// <param name="ar">Status of the current operation.</param>
         private void ConnectCallback(IAsyncResult ar)
         {
             try
@@ -108,16 +142,27 @@ namespace PS.Core
             }
         }
 
+        /// <summary>
+        /// Disconnect from the server
+        /// </summary>
         public void Disconnect()
         {
             _socket.BeginDisconnect(false, DisconnectCallback, null);
         }
 
+        /// <summary>
+        /// Callback for a disconnect.
+        /// </summary>
+        /// <param name="ar">Status of the current operation.</param>
         private void DisconnectCallback(IAsyncResult ar)
         {
             SendMessage(MessageHelper.CreateMessage(MessageType.ConnectionLostEvent.Name));
         }
 
+        /// <summary>
+        /// Start to receive a message from the server.
+        /// </summary>
+        /// <param name="client">Socket connection to the server.</param>
         private void Receive(Socket client)
         {
             try
@@ -133,6 +178,11 @@ namespace PS.Core
             }
         }
 
+        /// <summary>
+        /// Callback for recieving a message from the server.  Maybe be called more then once per message if large enough.  This will dispatch the appropriate PsEvent when the
+        /// entire message wahs been receivied.
+        /// </summary>
+        /// <param name="ar">Status of the current operation.</param>
         private void ReceiveCallback(IAsyncResult ar)
         {
             try
@@ -189,6 +239,10 @@ namespace PS.Core
             }            
         }
 
+        /// <summary>
+        /// Send a PsRequest to the server.
+        /// </summary>
+        /// <param name="request"></param>
         public void Send(PsRequest request)
         {
             if (_socket.Connected)
@@ -199,6 +253,10 @@ namespace PS.Core
             }
         }
 
+        /// <summary>
+        /// Callback for sending message to server.
+        /// </summary>
+        /// <param name="ar">Status of the current operation.</param>
         private static void SendCallback(IAsyncResult ar)
         {
             try
@@ -213,6 +271,10 @@ namespace PS.Core
             }
         }
 
+        /// <summary>
+        /// Will either send the message or queue it for later delivery.
+        /// </summary>
+        /// <param name="message"></param>
         private void SendMessage(PsEvent message)
         {
             if (QueueMessages)
@@ -221,6 +283,9 @@ namespace PS.Core
                 _dispatcher.DispatchEvent(message);
         }
 
+        /// <summary>
+        /// Dispatches any messages enqueqed since the last dispatch.
+        /// </summary>
         public void DispatchEvents()
         {
             PsEvent[] events;
@@ -235,6 +300,9 @@ namespace PS.Core
                 _dispatcher.DispatchEvent(events[i]);
         }
 
+        /// <summary>
+        /// Endpoint for listening for messages.
+        /// </summary>
         public EventDispatcher EventDispatcher { get { return _dispatcher; } }
     }
 }

@@ -49,6 +49,7 @@ public class Player : MonoBehaviour
 
 			Sprite[] arr = null;
 
+			// get the array of sprites for whatever direction the player is facing
 			switch (Direction)
 			{
 				case PlayerDirection.Down:
@@ -68,10 +69,12 @@ public class Player : MonoBehaviour
 	                break;
             }
 
+			// loop through the frames
 			int index = (int)(Time.timeSinceLevelLoad * FramesPerSecond);
 			index = index % arr.Length;
 			_renderer.sprite = arr[index];
 
+			// once the player gets to the target make them idle
 			if (transform.position == Target)
 			{
 				if (!Input.anyKey)
@@ -85,6 +88,10 @@ public class Player : MonoBehaviour
         }
     }
     
+	/// <summary>
+	/// Make a player face a direction.
+	/// </summary>
+	/// <param name="direction">Direction to face.</param>
 	public void Face(PlayerDirection direction)
 	{
 		switch (direction)
@@ -107,6 +114,10 @@ public class Player : MonoBehaviour
         }
     }
     
+	/// <summary>
+	/// Make a player move to a position.  For making other players move in response to server events.
+	/// </summary>
+	/// <param name="position">Target position.</param>
 	public void MoveTo(Vector2 position)
 	{
 		Vector2 current = new Vector2(transform.position.x, transform.position.y);
@@ -128,6 +139,10 @@ public class Player : MonoBehaviour
 		Target = position;
 	}
 
+	/// <summary>
+	/// Set a direction for a player to move in.
+	/// </summary>
+	/// <param name="direction">Target direction.</param>
     public void MoveTo(PlayerDirection direction)
     {
         if (Status == PlayerStatus.Walking)
@@ -156,6 +171,10 @@ public class Player : MonoBehaviour
         }
 	}
 
+	/// <summary>
+	/// Get normalized vector for the direction the player is facing.
+	/// </summary>
+	/// <returns>The direction vector.</returns>
 	public Vector2 GetDirectionVector()
 	{
 		switch (Direction)
@@ -177,6 +196,9 @@ public class Player : MonoBehaviour
 		}
 	}
 
+	/// <summary>
+	/// Shoot a fireball.
+	/// </summary>
 	public void Shoot()
 	{
 		if (CanShoot)

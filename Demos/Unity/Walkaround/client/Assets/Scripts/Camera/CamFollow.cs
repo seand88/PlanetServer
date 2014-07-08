@@ -1,15 +1,29 @@
 ﻿using UnityEngine;
 using System.Collections;
 
+/// <summary>
+/// Makes the attached camera follow the target.
+/// </summary>
 public class CamFollow : MonoBehaviour
 {
+	/// <summary>
+	/// The target to follow.
+	/// </summary>
 	public GameObject Target;
+	/// <summary>
+	/// How far the camera is from the target. 
+	/// </summary>
 	public Vector3 Offset;
 
+	/// <summary>
+	/// Current map. 
+	/// </summary>
+	/// <value>The map.</value>
 	public MapData Map { get; set; }
 
 	void LateUpdate()
 	{
+		// keep the camera centered on the player while keeping the camera confined to the edges of the map
 		if (Target)
 		{
 			int half_width = Constants.SCREEN_WIDTH / Constants.TILE_WIDTH / 2;

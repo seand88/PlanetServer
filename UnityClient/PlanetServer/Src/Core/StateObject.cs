@@ -4,6 +4,9 @@ using System.Text;
 
 namespace PS.Core
 {
+    /// <summary>
+    /// State of current connection.
+    /// </summary>
     public class StateObject
     {
         public const int BufferSize = 1024;
